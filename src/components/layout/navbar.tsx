@@ -8,9 +8,9 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export default function Navbar() {
   const navLinks = [
-    { href: '#', label: 'Home' },
-    { href: '#', label: 'Admin' },
-    { href: '#', label: 'Login' },
+    { href: '/', label: 'Home' },
+    { href: '/admin', label: 'Admin' },
+    { href: '/login', label: 'Login' },
   ];
 
   return (

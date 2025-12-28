@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "cafeteria-food",
+      "description": "A variety of fresh food available at a cafeteria.",
+      "imageUrl": "https://images.unsplash.com/photo-1643068482612-0386a4611738?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2FmZXRlcmlhJTIwZm9vZHxlbnwwfHx8fDE3NjY5NTE1MzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cafeteria food"
+    },
+    {
+      "id": "hospital-building",
+      "description": "The exterior of a modern hospital building.",
+      "imageUrl": "https://images.unsplash.com/photo-1587351021355-a479a299d2f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxob3NwaXRhbCUyMGJ1aWxkaW5nfGVufDB8fHx8MTc2NjkzODI4Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hospital building"
+    },
+    {
+      "id": "campus-view",
+      "description": "An aerial view of a university campus.",
+      "imageUrl": "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx1bml2ZXJzaXR5JTIwY2FtcHVzfGVufDB8fHx8MTc2NjkxNzgwNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "university campus"
+    }
+  ]
 }

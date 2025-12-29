@@ -19,10 +19,10 @@
       "imageHint": "university campus"
     },
     {
-      "id": "sos-alert",
-      "description": "A red alert light for emergencies.",
-      "imageUrl": "https://images.unsplash.com/photo-1580820216942-f7f6a73c153f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWQlMjBhbGVydCUyMGxpZ2h0fGVufDB8fHx8MTc2OTc1MzYyOXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "emergency alert"
+      "id": "sos-map",
+      "description": "A map showing a location for an emergency.",
+      "imageUrl": "https://images.unsplash.com/photo-1598632640487-6ea4a4e8b963?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtYXAlMjBsb2NhdGlvbnxlbnwwfHx8fDE3Njk4MzM3MjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "location map"
     }
   ]
 }

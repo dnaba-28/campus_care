@@ -53,7 +53,7 @@ export default function SosCard() {
         blockNo: '',
     });
     const { toast } = useToast();
-    const sosImage = PlaceHolderImages.find(img => img.id === 'sos-alert');
+    const sosImage = PlaceHolderImages.find(img => img.id === 'sos-map');
     
     useEffect(() => {
         if (currentUser) {

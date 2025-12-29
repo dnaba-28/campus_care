@@ -2,32 +2,8 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read access to doctor information for the dashboard
-    match /doctors/{doctorId} {
-      allow read: if true;
-
-      // Allow write access only for authenticated users (admin functionality)
-      // For this demo, we are allowing any authenticated user to act as an admin.
-      // In a real app, you would check for a custom claim: request.auth.token.isAdmin == true
-      allow write: if request.auth != null;
-    }
-
-    // Rules for SOS Reports
-    match /sos-reports/{reportId} {
-      // Allow any authenticated user to create (send) an SOS report
-      allow create: if request.auth != null;
-
-      // Allow authenticated users (admins) to read the reports
-      allow read: if request.auth != null;
-    }
-
-    // Rules for Lost and Found Items
-    match /lost-and-found/{itemId} {
-      // Any authenticated user can create (report) a new item
-      allow create: if request.auth != null;
-      
-      // Allow public read access to the list of items
-      allow get, list: if true;
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }

@@ -6,7 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, Sparkles, Loader2 } from 'lucide-react';
+import { Bot, Send, Sparkles, Loader2, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { campusCareChat } from '@/ai/flows/campus-care-chat';
 
@@ -37,6 +37,7 @@ export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) 
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const router = useRouter();
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -112,70 +113,85 @@ export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) 
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div ref={chatContainerRef} className="h-48 overflow-y-auto p-3 bg-muted/50 rounded-md space-y-4">
-          {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-              <p className="text-sm">Ask me for help!</p>
-              <p className="text-xs">e.g., "I have a fever", "Show me the hospital", "Fire in Block B"</p>
-            </div>
-          )}
-          {messages.map((msg, index) => (
-            <div key={index} className={cn('flex flex-col', msg.isUser ? 'items-end' : 'items-start')}>
-              <div
-                className={cn(
-                  'max-w-[80%] rounded-lg px-3 py-2 text-sm',
-                  msg.isUser
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-background border',
-                  !msg.isUser && msg.isUrgent ? 'bg-red-50 border-red-200 text-red-900' : ''
-                )}
-              >
-                <ReactMarkdown
-                  className="prose prose-sm"
-                  components={{
-                    p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} />,
-                    ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2" {...props} />,
-                    ul: ({node, ...props}) => <ul className="list-disc list-inside my-2" {...props} />,
-                    strong: ({node, ...props}) => <strong className="font-bold" {...props} />,
-                  }}
-                >
-                  {msg.text}
-                </ReactMarkdown>
-              </div>
-              {!msg.isUser && msg.action && (
-                <Button
-                  size="sm"
-                  className="mt-2 text-sm h-auto px-3 py-1"
-                  onClick={() => handleActionClick(msg.action.path)}
-                >
-                  {msg.action.label}
-                </Button>
+        {isChatOpen ? (
+          <>
+            <div ref={chatContainerRef} className="h-48 overflow-y-auto p-3 bg-muted/50 rounded-md space-y-4">
+              {messages.length === 0 && (
+                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                  <p className="text-sm">Ask me for help!</p>
+                  <p className="text-xs">e.g., "I have a fever", "Show me the hospital", "Fire in Block B"</p>
+                </div>
+              )}
+              {messages.map((msg, index) => (
+                <div key={index} className={cn('flex flex-col', msg.isUser ? 'items-end' : 'items-start')}>
+                  <div
+                    className={cn(
+                      'max-w-[80%] rounded-lg px-3 py-2 text-sm',
+                      msg.isUser
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-background border',
+                      !msg.isUser && msg.isUrgent ? 'bg-red-50 border-red-200 text-red-900' : ''
+                    )}
+                  >
+                    <ReactMarkdown
+                      className="prose prose-sm"
+                      components={{
+                        p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc list-inside my-2" {...props} />,
+                        strong: ({node, ...props}) => <strong className="font-bold" {...props} />,
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+                  </div>
+                  {!msg.isUser && msg.action && (
+                    <Button
+                      size="sm"
+                      className="mt-2 text-sm h-auto px-3 py-1"
+                      onClick={() => handleActionClick(msg.action!.path)}
+                    >
+                      {msg.action.label}
+                    </Button>
+                  )}
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex items-start space-x-2">
+                    <Bot className="w-5 h-5 text-primary flex-shrink-0"/>
+                    <div className="bg-background border rounded-lg px-3 py-2 text-sm flex items-center">
+                        <Loader2 className="w-4 h-4 animate-spin mr-2"/>
+                        Thinking...
+                    </div>
+                </div>
               )}
             </div>
-          ))}
-           {isLoading && (
-            <div className="flex items-start space-x-2">
-                <Bot className="w-5 h-5 text-primary flex-shrink-0"/>
-                <div className="bg-background border rounded-lg px-3 py-2 text-sm flex items-center">
-                    <Loader2 className="w-4 h-4 animate-spin mr-2"/>
-                    Thinking...
-                </div>
+            <div className="flex w-full items-center space-x-2">
+              <Input
+                type="text"
+                placeholder="Type a command or emergency..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                disabled={isLoading}
+              />
+              <Button type="submit" size="icon" onClick={handleSend} disabled={isLoading}>
+                <Send className="h-4 w-4" />
+              </Button>
             </div>
-          )}
-        </div>
-        <div className="flex w-full items-center space-x-2">
-          <Input
-            type="text"
-            placeholder="Type a command or emergency..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            disabled={isLoading}
-          />
-          <Button type="submit" size="icon" onClick={handleSend} disabled={isLoading}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center min-h-[268px] text-center gap-4 p-4">
+            <Bot className="w-16 h-16 text-primary/70" />
+            <div className="space-y-1">
+                <h3 className="font-semibold text-lg font-headline">Need Assistance?</h3>
+                <p className="text-muted-foreground text-sm">Click the button below to start a conversation for any health or safety concerns.</p>
+            </div>
+            <Button onClick={() => setIsChatOpen(true)} className="mt-2" size="lg">
+                <MessageSquare className="mr-2" /> Chat with AI
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

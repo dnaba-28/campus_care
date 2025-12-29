@@ -18,8 +18,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle, ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
+
 
 // Mock user data as per requirements
 const currentUser = {
@@ -58,6 +61,7 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     });
     const { toast } = useToast();
     const sosImage = PlaceHolderImages.find(p => p.id === 'sos-map');
+    const firestore = useFirestore();
     
     useEffect(() => {
         if (currentUser) {
@@ -77,7 +81,10 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
             timestamp: new Date().toISOString(),
         };
 
-        console.log('SOS Payload:', payload);
+        if (firestore) {
+            const sosReportsCollection = collection(firestore, 'sos-reports');
+            addDocumentNonBlocking(sosReportsCollection, payload);
+        }
 
         setShowConfirmation(false);
         toast({
@@ -105,7 +112,7 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         <>
             <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
                 <Card className="relative overflow-hidden rounded-2xl shadow-lg group h-full">
-                    {sosImage && (
+                     {sosImage && (
                         <Image
                         src={sosImage.imageUrl}
                         alt={sosImage.description}
@@ -122,12 +129,12 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                                 <h2 className="text-2xl font-bold font-headline">EMERGENCY SOS</h2>
                             </div>
                             <p className="text-white/90">
-                                Press the button for immediate assistance. Your location will be shared with security.
+                                In a critical situation? Press for immediate assistance.
                             </p>
                         </div>
                         <DialogTrigger asChild>
-                            <Button variant="destructive" className="w-full bg-red-600 text-white hover:bg-red-700 font-bold text-lg">
-                                TRIGGER SOS
+                            <Button className="w-full bg-white text-slate-800 hover:bg-slate-200">
+                                Send Alert <ArrowRight className="ml-2" />
                             </Button>
                         </DialogTrigger>
                     </CardContent>

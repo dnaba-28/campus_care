@@ -11,5 +11,14 @@ service cloud.firestore {
       // In a real app, you would check for a custom claim: request.auth.token.isAdmin == true
       allow write: if request.auth != null;
     }
+
+    // Rules for SOS Reports
+    match /sos-reports/{reportId} {
+      // Allow any authenticated user to create (send) an SOS report
+      allow create: if request.auth != null;
+
+      // Allow authenticated users (admins) to read the reports
+      allow read: if request.auth != null;
+    }
   }
 }

@@ -20,6 +20,32 @@
         }
       },
       "required": ["name", "specialty", "status"]
+    },
+    "SosReport": {
+      "title": "SOS Report",
+      "description": "Represents an emergency SOS report sent by a user.",
+      "type": "object",
+      "properties": {
+        "userDetails": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "enrollmentNo": { "type": "string" },
+            "hostelName": { "type": "string" },
+            "roomNo": { "type": "string" },
+            "blockNo": { "type": "string" }
+          }
+        },
+        "emergencyType": {
+          "type": "string",
+          "enum": ["FIRE", "HEALTH", "SAFETY", "ACCIDENT"]
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["userDetails", "emergencyType", "timestamp"]
     }
   },
   "auth": {
@@ -31,6 +57,12 @@
         "$ref": "#/backend/entities/Doctor"
       },
       "description": "Stores real-time information about each doctor, including their availability status and specialty."
+    },
+    "/sos-reports/{reportId}": {
+      "schema": {
+        "$ref": "#/backend/entities/SosReport"
+      },
+      "description": "Stores all emergency SOS reports submitted by users."
     }
   }
 }

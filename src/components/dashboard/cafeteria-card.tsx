@@ -12,8 +12,8 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
-const CLOUDINARY_CLOUD_NAME = "diw7x4ii3"; // <--- IMPORTANT: This is your Cloudinary Cloud Name.
-const CLOUDINARY_UPLOAD_PRESET = "care_campus"; // <--- IMPORTANT: This must be an "Unsigned" preset
+const CLOUDINARY_CLOUD_NAME = "diw7x4ii3";
+const CLOUDINARY_UPLOAD_PRESET = "care_campus";
 
 export default function CafeteriaCard() {
   const [view, setView] = useState<'initial' | 'form'>('initial');
@@ -71,7 +71,7 @@ export default function CafeteriaCard() {
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
-        description: `Could not upload image. Please ensure your Cloudinary Cloud Name ('${CLOUDINARY_CLOUD_NAME}') and Upload Preset ('${CLOUDINARY_UPLOAD_PRESET}') are correct and the preset is 'Unsigned'.`,
+        description: `Could not upload image. Cloudinary says: "${error.message}". Please ensure your Cloud Name and Upload Preset are correct and that the preset is set to 'Unsigned'.`,
       });
       setImagePreview(null);
     } finally {

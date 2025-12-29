@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Mic, Square, Loader2, AudioWaveform, AlertCircle } from 'lucide-react';
+import { Mic, Square, Loader2, AudioWaveform, AlertCircle, Sparkles } from 'lucide-react';
 import { analyzeSosReport } from '@/ai/flows/realtime-sos-analyzer';
 import { useToast } from '@/hooks/use-toast';
 
@@ -143,7 +143,7 @@ export default function SosAnalyzerCard() {
             <CardTitle className="text-sm font-medium">Realtime SOS Analyzer</CardTitle>
             <CardDescription>AI-powered emergency response</CardDescription>
           </div>
-          <AudioWaveform className="h-5 w-5 text-muted-foreground" />
+          <Sparkles className="h-5 w-5 text-muted-foreground" />
         </div>
       </CardHeader>
       <CardContent className="flex flex-1 items-center justify-center min-h-[180px]">

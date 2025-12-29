@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, Sparkles } from 'lucide-react';
+import { Bot, Send, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { campusCareChat } from '@/ai/flows/campus-care-chat';
 
 type Action = {
   label: string;
@@ -35,63 +36,66 @@ type GlobalAIChatbotProps = {
 export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
 
     const userMessage: UserMessage = { text: input, isUser: true };
     setMessages(prev => [...prev, userMessage]);
-
-    processCommand(input.toLowerCase());
+    setIsLoading(true);
     setInput('');
+
+    try {
+      const response = await campusCareChat({ query: input });
+      const botMessage: BotMessage = {
+        text: response.answer,
+        isUser: false,
+        isUrgent: response.answer.startsWith('🚨 EMERGENCY:'),
+      };
+
+      // Heuristic to add action buttons based on AI response content
+      if (response.answer.toLowerCase().includes('hospital')) {
+        botMessage.action = { label: '🏥 Book a Doctor', path: '/hospital' };
+      } else if (response.answer.toLowerCase().includes('ambulance')) {
+         botMessage.action = { label: '🚑 Open Ambulance Tracker', path: '/hospital?mode=ambulance' };
+      } else if (response.answer.toLowerCase().includes('cafeteria')) {
+        botMessage.action = { label: '🍔 View Menu & Crowds', path: '/cafeteria' };
+      } else if (response.answer.includes('SOS')) {
+        botMessage.action = { label: '🚨 Trigger SOS', path: '#' };
+      }
+      
+      setMessages(prev => [...prev, botMessage]);
+
+    } catch (error) {
+      console.error("AI chat failed:", error);
+      const errorMessage: BotMessage = {
+        text: "I'm having trouble connecting right now. Please try again in a moment.",
+        isUser: false,
+        isUrgent: true,
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleActionClick = (path: string) => {
-    router.push(path);
+    if (path === '#') {
+        onTriggerSos();
+    } else {
+        router.push(path);
+    }
   };
 
-  const processCommand = (command: string) => {
-    let botResponse: BotMessage = {
-      text: "I'm sorry, I don't understand that command. Try 'hospital', 'cafeteria', or 'sos'.",
-      isUser: false,
-    };
-
-    // --- Triage Logic ---
-
-    // Scenario 1: Fever / Sickness
-    if (['fever', 'headache', 'vomiting', 'dizzy', 'sick'].some(k => command.includes(k))) {
-      botResponse.text = `🤒 **First Aid:**\n1. Drink water/ORS.\n2. Rest in a cool room.\n3. Monitor temperature.`;
-      botResponse.action = { label: "🏥 Book a Doctor Now", path: "/hospital" };
-    }
-    // Scenario 2: Accident / Injury
-    else if (['accident', 'bleeding', 'broken', 'fell', 'injury'].some(k => command.includes(k))) {
-      botResponse.text = `🚨 **CRITICAL ADVICE:**\n1. Stop bleeding with direct pressure.\n2. Do NOT move the patient.\n3. Keep them warm.`;
-      botResponse.isUrgent = true;
-      botResponse.action = { label: "🚑 Open Ambulance Tracker", path: "/hospital?mode=ambulance" };
-    }
-    // Scenario 3: Fire / Smoke
-    else if (['fire', 'smoke', 'smell'].some(k => command.includes(k))) {
-      botResponse.text = `🔥 **FIRE SAFETY:**\n1. Crawl low under smoke.\n2. Do not use elevators.\n3. Wet a cloth and cover your nose.`;
-      botResponse.isUrgent = true;
-      botResponse.action = { label: "🔥 Trigger SOS Beacon", path: "#" }; // Path is # for onTriggerSos
-    }
-    
-    // --- Simple Navigation (Fallback) ---
-    
-    else if (command.includes('hospital')) {
-        botResponse.text = "Here's the link to the hospital page.";
-        botResponse.action = { label: '🏥 Go to Hospital', path: '/hospital' };
-    } else if (command.includes('cafeteria') || command.includes('mess')) {
-        botResponse.text = "The Cafeteria is currently 65% full.";
-        botResponse.action = { label: '🍔 View Menu & Crowds', path: '/cafeteria' };
-    } else if (command.includes('sos') || command.includes('emergency')) {
-        botResponse.text = 'Click here to open the SOS beacon for any emergency.';
-        botResponse.action = { label: '🚨 Trigger SOS', path: '#' }; // Path is # for onTriggerSos
-    }
-
-    setMessages(prev => [...prev, botResponse]);
-  };
 
   return (
     <Card>
@@ -100,15 +104,15 @@ export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) 
           <div>
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Sparkles className="text-primary" />
-              AI Assistant
+              CARE-AI
             </CardTitle>
-            <CardDescription>Your campus AI command center</CardDescription>
+            <CardDescription>Your campus AI health assistant</CardDescription>
           </div>
           <Bot className="h-5 w-5 text-muted-foreground" />
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="h-48 overflow-y-auto p-3 bg-muted/50 rounded-md space-y-4">
+        <div ref={chatContainerRef} className="h-48 overflow-y-auto p-3 bg-muted/50 rounded-md space-y-4">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
               <p className="text-sm">Ask me for help!</p>
@@ -130,8 +134,8 @@ export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) 
                   className="prose prose-sm"
                   components={{
                     p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} />,
-                    ol: ({node, ...props}) => <ol className="list-decimal list-inside" {...props} />,
-                    ul: ({node, ...props}) => <ul className="list-disc list-inside" {...props} />,
+                    ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2" {...props} />,
+                    ul: ({node, ...props}) => <ul className="list-disc list-inside my-2" {...props} />,
                     strong: ({node, ...props}) => <strong className="font-bold" {...props} />,
                   }}
                 >
@@ -142,13 +146,22 @@ export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) 
                 <Button
                   size="sm"
                   className="mt-2 text-sm h-auto px-3 py-1"
-                  onClick={() => msg.action.path === '#' ? onTriggerSos() : handleActionClick(msg.action.path)}
+                  onClick={() => handleActionClick(msg.action.path)}
                 >
                   {msg.action.label}
                 </Button>
               )}
             </div>
           ))}
+           {isLoading && (
+            <div className="flex items-start space-x-2">
+                <Bot className="w-5 h-5 text-primary flex-shrink-0"/>
+                <div className="bg-background border rounded-lg px-3 py-2 text-sm flex items-center">
+                    <Loader2 className="w-4 h-4 animate-spin mr-2"/>
+                    Thinking...
+                </div>
+            </div>
+          )}
         </div>
         <div className="flex w-full items-center space-x-2">
           <Input
@@ -157,8 +170,9 @@ export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            disabled={isLoading}
           />
-          <Button type="submit" size="icon" onClick={handleSend}>
+          <Button type="submit" size="icon" onClick={handleSend} disabled={isLoading}>
             <Send className="h-4 w-4" />
           </Button>
         </div>

@@ -20,6 +20,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle, ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 
 type EmergencyType = 'FIRE' | 'HEALTH' | 'SAFETY' | 'ACCIDENT' | null;
@@ -47,12 +49,18 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         blockNo: '',
     });
     const { toast } = useToast();
+    const firestore = useFirestore();
     const sosImage = PlaceHolderImages.find(p => p.id === 'sos-map');
     
     useEffect(() => {
         const savedProfile = localStorage.getItem('student_profile');
         if (savedProfile) {
-            setUserDetails(JSON.parse(savedProfile));
+            try {
+                const parsedProfile = JSON.parse(savedProfile);
+                setUserDetails(prevDetails => ({ ...prevDetails, ...parsedProfile }));
+            } catch (e) {
+                console.error("Failed to parse student profile from localStorage", e);
+            }
         }
     }, [isModalOpen]);
 
@@ -63,81 +71,75 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
 
     const handleSendSOS = () => {
         // 1. Validate that all userDetails are filled
-        for (const key in userDetails) {
+        for (const key of ['name', 'enrollmentNo', 'hostelName', 'roomNo', 'blockNo']) {
             if (!userDetails[key as keyof typeof userDetails]) {
                 toast({
                     variant: "destructive",
                     title: "Missing Information",
-                    description: "Please fill out all your details before sending an SOS.",
+                    description: "Please fill out all your details in the SOS form before sending an alert.",
                 });
                 onOpenChange?.(true); // Re-open the modal if it was closed
                 return; // Stop the function
             }
         }
         
-        // Use geolocation
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const location = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
-                saveAlert(location);
+                saveAlertToFirestore(location);
             },
             () => {
-                // If geolocation fails, use a fallback
-                saveAlert("Unknown Location");
+                saveAlertToFirestore("Unknown Location (GPS denied)");
             }
         );
     };
 
-    const saveAlert = (location: string) => {
-        const profileData = localStorage.getItem('student_profile');
-        let senderName = "Unknown Device";
-        let senderID = `DEV-${Math.floor(Math.random() * 9999)}`; // Default Random ID
-
-        if (profileData) {
-            try {
-                const user = JSON.parse(profileData);
-                senderName = user.name || "Student";
-                senderID = user.enrollment || senderID;
-            } catch(e) {
-                console.error("Failed to parse student profile", e)
-            }
+    const saveAlertToFirestore = async (location: string) => {
+        if (!firestore) {
+            toast({
+                variant: "destructive",
+                title: "Database Error",
+                description: "Could not connect to the database. Please try again later.",
+            });
+            return;
         }
 
-        const timestamp = new Date();
         const newAlert = {
-          id: timestamp.getTime(),
-          type: selectedEmergency,
-          message: `Emergency reported by ${senderName}`,
-          senderID: senderID,
-          senderName: senderName,
+          emergencyType: selectedEmergency,
+          userDetails: userDetails,
           location: location,
-          time: timestamp.toISOString(),
-          status: 'Active',
-          user: userDetails
+          time: new Date().toISOString(), // Using ISO string for cross-platform compatibility
+          timestamp: serverTimestamp(), // For Firestore's ordering
         };
         
-        const existingAlerts = JSON.parse(localStorage.getItem('admin_alerts') || '[]');
-        const updatedAlerts = [newAlert, ...existingAlerts];
-        localStorage.setItem('admin_alerts', JSON.stringify(updatedAlerts));
+        try {
+            const reportsCollection = collection(firestore, 'sos-reports');
+            const docRef = await addDoc(reportsCollection, newAlert);
 
+            setShowConfirmation(false);
+            toast({
+                title: (
+                    <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <span className="font-bold">SOS Sent to Security Cloud!</span>
+                    </div>
+                ),
+                description: `Your ${selectedEmergency} alert has been sent. ID: ${docRef.id.substring(0,6)}...`,
+            });
 
-        // Close the confirmation and show success feedback
-        setShowConfirmation(false);
-        toast({
-            title: (
-                <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                    <span className="font-bold">SOS Sent! Admin Notified.</span>
-                </div>
-            ),
-            description: `Your ${selectedEmergency} alert has been sent. ID: ${senderID} tracked.`,
-        });
+            setTimeout(() => {
+                onOpenChange?.(false);
+                setSelectedEmergency(null); 
+            }, 1500);
 
-        // Close the main SOS modal after a delay
-        setTimeout(() => {
-            onOpenChange?.(false);
-            setSelectedEmergency(null); // Reset for next time
-        }, 1500);
+        } catch (error) {
+            console.error("Error sending SOS to Firestore:", error);
+            toast({
+                variant: "destructive",
+                title: "SOS Failed",
+                description: "Could not send the alert. Please check your connection or try again.",
+            });
+        }
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,7 +185,6 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                     </DialogHeader>
 
                     <div className="flex-1 overflow-y-auto px-6 pb-6">
-                        {/* User Details Form */}
                         <div className="mb-8">
                             <h3 className="text-lg font-semibold mb-4 border-b pb-2">Your Details</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -210,7 +211,6 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                             </div>
                         </div>
 
-                        {/* Emergency Categories */}
                         <div>
                             <h3 className="text-lg font-semibold mb-4 border-b pb-2">Select Emergency Type</h3>
                             <div className="grid grid-cols-2 gap-4">
@@ -230,7 +230,6 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                 </DialogContent>
             </Dialog>
 
-            {/* Confirmation Dialog */}
             <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
                 <AlertDialogContent>
                     <AlertDialogHeader>

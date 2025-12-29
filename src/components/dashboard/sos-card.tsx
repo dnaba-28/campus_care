@@ -121,7 +121,7 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                         data-ai-hint={sosImage.imageHint}
                         />
                     )}
-                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/20"></div>
+                     <div className="absolute inset-0 bg-gradient-to-t from-red-800/80 to-red-600/40"></div>
                     <CardContent className="relative z-10 flex flex-col justify-between h-full p-6 text-white">
                         <div className='space-y-2'>
                             <div className="flex items-center gap-4">

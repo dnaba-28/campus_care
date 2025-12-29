@@ -18,7 +18,7 @@ export default function Home() {
         {/* Hero Section */}
         <div className="relative h-[450px] w-full">
           <Image
-            src="https://images.collegedunia.com/public/college_data/images/appImage/1503896434cover.jpg"
+            src="https://res.cloudinary.com/diw7x4ii3/image/upload/v1719242945/nita_campus_1.jpg"
             alt="NIT Agartala Campus"
             layout="fill"
             objectFit="cover"

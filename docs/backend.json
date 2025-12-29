@@ -46,36 +46,6 @@
         }
       },
       "required": ["userDetails", "emergencyType", "timestamp"]
-    },
-    "LostAndFoundItem": {
-      "title": "Lost and Found Item",
-      "description": "An item reported as either lost or found on campus.",
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string",
-          "description": "A description of the item."
-        },
-        "phone": {
-          "type": "string",
-          "description": "Contact phone number of the person who reported it."
-        },
-        "category": {
-          "type": "string",
-          "enum": ["lost", "found"]
-        },
-        "imageUrl": {
-          "type": "string",
-          "format": "uri",
-          "description": "URL of the uploaded image of the item."
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The time the item was reported."
-        }
-      },
-      "required": ["description", "phone", "category", "imageUrl", "timestamp"]
     }
   },
   "auth": {
@@ -93,12 +63,6 @@
         "$ref": "#/backend/entities/SosReport"
       },
       "description": "Stores all emergency SOS reports submitted by users."
-    },
-    "/lost-and-found/{itemId}": {
-      "schema": {
-        "$ref": "#/backend/entities/LostAndFoundItem"
-      },
-      "description": "Stores all lost and found item reports."
     }
   }
 }

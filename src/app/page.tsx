@@ -7,7 +7,6 @@ import CafeteriaCard from '@/components/dashboard/cafeteria-card';
 import GlobalAIChatbot from '@/components/dashboard/global-ai-chatbot';
 import { useState } from 'react';
 import Image from 'next/image';
-import LostAndFoundCard from '@/components/dashboard/lost-and-found-card';
 
 export default function Home() {
   const [isSosModalOpen, setIsSosModalOpen] = useState(false);
@@ -40,7 +39,6 @@ export default function Home() {
               <HospitalCard />
               <CafeteriaCard />
               <GlobalAIChatbot />
-              <LostAndFoundCard />
             </div>
           </div>
         </div>

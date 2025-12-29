@@ -20,7 +20,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle, ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { db } from '@/lib/firebase';
+import { db } from '@/firebase';
 import { ref, push } from 'firebase/database';
 
 

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Shield, Lock, AlertTriangle, MapPin, CheckCircle, Activity, ShieldX } from 'lucide-react';
-import { db } from '@/lib/firebase';
+import { db } from '@/firebase';
 import { ref, onValue, remove } from 'firebase/database';
 
 export default function AdminPage() {

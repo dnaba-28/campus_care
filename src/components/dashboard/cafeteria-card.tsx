@@ -12,7 +12,7 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
-const CLOUDINARY_CLOUD_NAME = "dkyy0fpoz"; // <--- IMPORTANT: REPLACE WITH YOUR CLOUDINARY CLOUD NAME
+const CLOUDINARY_CLOUD_NAME = "diw7x4ii3"; // <--- IMPORTANT: This is your Cloudinary Cloud Name.
 const CLOUDINARY_UPLOAD_PRESET = "care_campus"; // <--- IMPORTANT: This must be an "Unsigned" preset
 
 export default function CafeteriaCard() {
@@ -71,7 +71,7 @@ export default function CafeteriaCard() {
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
-        description: `Could not upload image. Please ensure your Cloudinary Cloud Name and Upload Preset ('${CLOUDINARY_UPLOAD_PRESET}') are correct.`,
+        description: `Could not upload image. Please ensure your Cloudinary Cloud Name ('${CLOUDINARY_CLOUD_NAME}') and Upload Preset ('${CLOUDINARY_UPLOAD_PRESET}') are correct and the preset is 'Unsigned'.`,
       });
       setImagePreview(null);
     } finally {

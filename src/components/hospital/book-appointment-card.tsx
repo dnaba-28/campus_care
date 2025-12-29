@@ -8,8 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Ticket, Bell } from 'lucide-react';
+import { Calendar, Ticket, Bell, Ambulance } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 
 const LIVE_QUEUE_START_OFFSET = 5;
 const NOTIFICATION_THRESHOLD = 2;
@@ -21,7 +23,10 @@ export default function BookAppointmentCard() {
   const [userToken, setUserToken] = useState<number | null>(null);
   const [servingToken, setServingToken] = useState<number | null>(null);
   const [notificationSent, setNotificationSent] = useState(false);
+  const [needsAmbulance, setNeedsAmbulance] = useState(false);
   
+  const [hostelName, setHostelName] = useState('');
+
   const { toast } = useToast();
 
   const handleBooking = (e: React.FormEvent) => {
@@ -34,10 +39,17 @@ export default function BookAppointmentCard() {
     setView('ticket');
     setNotificationSent(false);
 
-    toast({
-      title: 'Appointment Confirmed!',
-      description: `Your token is #${newToken}. Please monitor the live queue.`,
-    });
+    if (needsAmbulance) {
+      toast({
+        title: 'Appointment & Ambulance Confirmed!',
+        description: `Your token is #${newToken} and an ambulance has been dispatched to ${hostelName}.`,
+      });
+    } else {
+      toast({
+        title: 'Appointment Confirmed!',
+        description: `Your token is #${newToken}. Please monitor the live queue.`,
+      });
+    }
   };
 
   useInterval(() => {
@@ -65,6 +77,7 @@ export default function BookAppointmentCard() {
     setUserToken(null);
     setServingToken(null);
     setReason('');
+    setNeedsAmbulance(false);
   }
 
   return (
@@ -86,10 +99,7 @@ export default function BookAppointmentCard() {
               <Label htmlFor="enrollment">Enrollment No.</Label>
               <Input id="enrollment" placeholder="e.g., 21BCE1234" />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="hostel">Hostel Name</Label>
-              <Input id="hostel" placeholder="e.g., Starlight Hall" />
-            </div>
+            
             <div className="space-y-1">
               <Label htmlFor="reason">Reason for Visit</Label>
               <Select onValueChange={setReason} value={reason}>
@@ -110,8 +120,44 @@ export default function BookAppointmentCard() {
                 <Textarea id="other-reason" placeholder="Describe your symptoms or issue" />
               </div>
             )}
+            
+            {/* Ambulance Toggle */}
+            <div className="mt-4 p-4 border rounded-lg bg-orange-50 border-orange-200">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="ambulance-needed" className="flex items-center gap-2 text-base font-semibold text-orange-800">
+                        <Ambulance className="w-5 h-5"/>
+                        I need an Ambulance Pickup
+                    </Label>
+                    <Switch
+                        id="ambulance-needed"
+                        checked={needsAmbulance}
+                        onCheckedChange={setNeedsAmbulance}
+                    />
+                </div>
+            </div>
+
+            {/* Conditional Ambulance Fields */}
+            <div className={cn(
+                "grid gap-4 overflow-hidden transition-all duration-300 ease-in-out",
+                needsAmbulance ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0"
+            )}>
+                 <h4 className="text-md font-semibold text-slate-700">Pickup Location Details</h4>
+                 <div className="space-y-1">
+                    <Label htmlFor="hostel">Hostel Name</Label>
+                    <Input id="hostel" value={hostelName} onChange={(e) => setHostelName(e.target.value)} placeholder="e.g., Starlight Hall" />
+                 </div>
+                 <div className="space-y-1">
+                    <Label htmlFor="block">Block Number</Label>
+                    <Input id="block" placeholder="e.g., B" />
+                 </div>
+                 <div className="space-y-1">
+                    <Label htmlFor="room">Room Number</Label>
+                    <Input id="room" placeholder="e.g., 205" />
+                 </div>
+            </div>
+
             <Button type="submit" className="w-full mt-2" style={{ backgroundColor: '#007bff' }}>
-              Book Appointment
+              {needsAmbulance ? 'Book & Request Ambulance' : 'Book Appointment'}
             </Button>
           </form>
         ) : (

@@ -6,13 +6,19 @@ import ReactMarkdown from 'react-markdown';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, Sparkles, AlertTriangle, Siren, Flame } from 'lucide-react';
+import { Bot, Send, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+type Action = {
+  label: string;
+  path: string;
+};
 
 type BotMessage = {
   text: string;
   isUser: false;
   isUrgent?: boolean;
+  action?: Action;
 };
 
 type UserMessage = {
@@ -41,71 +47,50 @@ export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) 
     setInput('');
   };
 
+  const handleActionClick = (path: string) => {
+    router.push(path);
+  };
+
   const processCommand = (command: string) => {
     let botResponse: BotMessage = {
       text: "I'm sorry, I don't understand that command. Try 'hospital', 'cafeteria', or 'sos'.",
       isUser: false,
     };
-    let urgent = false;
-    let action: (() => void) | null = null;
-    let actionDelay = 0;
 
     // --- Triage Logic ---
 
     // Scenario 1: Fever / Sickness
     if (['fever', 'headache', 'vomiting', 'dizzy', 'sick'].some(k => command.includes(k))) {
-      botResponse.text = `🤒 **Medical Advice:**
-1. Stay hydrated (drink water/ORS).
-2. Monitor your temperature.
-3. If > 100°F, take Paracetamol.
-      
-I am redirecting you to the Hospital Page to book a doctor...`;
-      action = () => router.push('/hospital');
-      actionDelay = 3000;
+      botResponse.text = `🤒 **First Aid:**\n1. Drink water/ORS.\n2. Rest in a cool room.\n3. Monitor temperature.`;
+      botResponse.action = { label: "🏥 Book a Doctor Now", path: "/hospital" };
     }
     // Scenario 2: Accident / Injury
     else if (['accident', 'bleeding', 'broken', 'fell', 'injury'].some(k => command.includes(k))) {
-      botResponse.text = `🚨 **EMERGENCY FIRST AID:**
-1. Apply direct pressure to stop bleeding.
-2. Do NOT move the patient if neck/back pain.
-3. Keep the patient warm.
-      
-I am activating the Ambulance Tracker immediately...`;
+      botResponse.text = `🚨 **CRITICAL ADVICE:**\n1. Stop bleeding with direct pressure.\n2. Do NOT move the patient.\n3. Keep them warm.`;
       botResponse.isUrgent = true;
-      action = () => router.push('/hospital?mode=ambulance');
-      actionDelay = 3000;
+      botResponse.action = { label: "🚑 Open Ambulance Tracker", path: "/hospital?mode=ambulance" };
     }
     // Scenario 3: Fire / Smoke
     else if (['fire', 'smoke', 'smell'].some(k => command.includes(k))) {
-      botResponse.text = `🔥 **FIRE SAFETY:**
-1. Crawl low under smoke.
-2. Do not use elevators.
-3. Wet a cloth and cover your nose.
-      
-OPENING SOS BEACON NOW!`;
+      botResponse.text = `🔥 **FIRE SAFETY:**\n1. Crawl low under smoke.\n2. Do not use elevators.\n3. Wet a cloth and cover your nose.`;
       botResponse.isUrgent = true;
-      action = onTriggerSos;
-      actionDelay = 500; // Almost immediate
+      botResponse.action = { label: "🔥 Trigger SOS Beacon", path: "#" }; // Path is # for onTriggerSos
     }
-
+    
     // --- Simple Navigation (Fallback) ---
+    
     else if (command.includes('hospital')) {
-      botResponse.text = 'Navigating to the Hospital page...';
-      action = () => router.push('/hospital');
+        botResponse.text = "Here's the link to the hospital page.";
+        botResponse.action = { label: '🏥 Go to Hospital', path: '/hospital' };
     } else if (command.includes('cafeteria') || command.includes('mess')) {
-      botResponse.text = 'Navigating to the Cafeteria Mess Hub...';
-      action = () => router.push('/cafeteria');
+        botResponse.text = "The Cafeteria is currently 65% full.";
+        botResponse.action = { label: '🍔 View Menu & Crowds', path: '/cafeteria' };
     } else if (command.includes('sos') || command.includes('emergency')) {
-      botResponse.text = 'Opening the SOS beacon...';
-      action = onTriggerSos;
+        botResponse.text = 'Click here to open the SOS beacon for any emergency.';
+        botResponse.action = { label: '🚨 Trigger SOS', path: '#' }; // Path is # for onTriggerSos
     }
 
-    // Add bot response and execute action
     setMessages(prev => [...prev, botResponse]);
-
-    if (action) {
-      setTimeout(action, actionDelay);
-    }
   };
 
   return (
@@ -131,7 +116,7 @@ OPENING SOS BEACON NOW!`;
             </div>
           )}
           {messages.map((msg, index) => (
-            <div key={index} className={cn('flex', msg.isUser ? 'justify-end' : 'justify-start')}>
+            <div key={index} className={cn('flex flex-col', msg.isUser ? 'items-end' : 'items-start')}>
               <div
                 className={cn(
                   'max-w-[80%] rounded-lg px-3 py-2 text-sm',
@@ -153,6 +138,15 @@ OPENING SOS BEACON NOW!`;
                   {msg.text}
                 </ReactMarkdown>
               </div>
+              {!msg.isUser && msg.action && (
+                <Button
+                  size="sm"
+                  className="mt-2 text-sm h-auto px-3 py-1"
+                  onClick={() => msg.action.path === '#' ? onTriggerSos() : handleActionClick(msg.action.path)}
+                >
+                  {msg.action.label}
+                </Button>
+              )}
             </div>
           ))}
         </div>

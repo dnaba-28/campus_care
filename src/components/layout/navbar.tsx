@@ -5,19 +5,49 @@ import Link from 'next/link';
 import { HeartPulse, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useEffect, useState } from 'react';
+
+type UserProfile = {
+  name?: string;
+  // other fields are not needed for this logic
+};
 
 export default function Navbar() {
-  const navLinks = [
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // This code runs only on the client-side
+    const savedData = localStorage.getItem('student_profile');
+    if (savedData) {
+      const profile: UserProfile = JSON.parse(savedData);
+      // Simple check: if the user's name is "Admin", they are an admin.
+      if (profile.name === 'Admin') {
+        setIsAdmin(true);
+      }
+    }
+  }, []);
+
+  const baseNavLinks = [
     { href: '/', label: 'Home' },
     { href: '/chat', label: 'AI Chat' },
-    { href: '/admin', label: 'Admin' },
-    { href: '/profile', label: 'Profile' },
   ];
+
+  const adminLink = { href: '/admin', label: 'Admin' };
+
+  const userLink = { href: '/profile', label: 'Profile' };
+  
   const authLinks = [
       { href: '/login', label: 'Login' }
   ];
 
-  const allLinks = [...navLinks, ...authLinks];
+  const navLinks = isAdmin 
+    ? [...baseNavLinks, adminLink, userLink] 
+    : [...baseNavLinks, userLink];
+    
+  const allMobileLinks = isAdmin
+    ? [...baseNavLinks, adminLink, userLink, ...authLinks]
+    : [...baseNavLinks, userLink, ...authLinks];
+
 
   return (
     <header className="sticky top-0 flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6 z-50">
@@ -56,7 +86,7 @@ export default function Navbar() {
                 <HeartPulse className="h-6 w-6 text-primary" />
                 <span className="sr-only">CARE-CAMPUS</span>
                 </Link>
-                {allLinks.map((link) => (
+                {allMobileLinks.map((link) => (
                 <Link
                     key={link.label}
                     href={link.href}

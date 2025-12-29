@@ -6,10 +6,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 type Doctor = {
   id: string;
@@ -28,16 +28,16 @@ export default function LiveStatusCard() {
   
   const { data: doctors, isLoading } = useCollection<Doctor>(doctorsCollection);
 
-  const getStatusBadge = (status: Doctor['status']) => {
+  const getStatusIndicatorClass = (status: Doctor['status']) => {
     switch (status) {
       case 'Available':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500';
       case 'On Break':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-500';
       case 'Busy':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-500';
       default:
-        return 'bg-slate-100 text-slate-800';
+        return 'bg-slate-400';
     }
   }
 
@@ -83,22 +83,18 @@ export default function LiveStatusCard() {
                 key={doctor.id}
                 className="flex items-center justify-between p-3 bg-white rounded-lg border"
               >
-                <div>
-                  <p className="font-semibold text-slate-800">{doctor.name}</p>
-                  <p className="text-sm text-slate-500">{doctor.specialty}</p>
+                <div className="flex items-center gap-3">
+                   <div className={cn("w-3 h-3 rounded-full", getStatusIndicatorClass(doctor.status))}></div>
+                   <div>
+                     <p className="font-semibold text-slate-800">{doctor.name}</p>
+                     <p className="text-sm text-slate-500">{doctor.specialty}</p>
+                   </div>
                 </div>
-                <Badge
-                  variant={
-                    doctor.status === 'Available' ? 'default' : 'destructive'
-                  }
-                  className={getStatusBadge(doctor.status)}
-                >
-                  {doctor.status}
-                </Badge>
+                <span className="text-sm font-medium text-slate-600">{doctor.status}</span>
               </div>
             ))}
             {!isLoading && (!doctors || doctors.length === 0) && (
-                 <div className="text-center p-4 text-muted-foreground">No doctors available. Check admin panel to seed data.</div>
+                 <div className="text-center p-4 text-muted-foreground">No doctors available. Visit the Admin page to seed data.</div>
             )}
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,12 +13,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 // Mock user data as per requirements
 const currentUser = {
@@ -98,25 +100,37 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         setUserDetails(prev => ({...prev, [id]: value}));
     };
 
+    const sosImage = PlaceHolderImages.find(p => p.id === 'sos-map');
+
     return (
         <>
             <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center gap-4">
-                            <AlertTriangle className="w-8 h-8 text-destructive" />
-                            <CardTitle className="text-2xl font-bold font-headline">Emergency SOS</CardTitle>
+                <Card className="relative overflow-hidden rounded-2xl shadow-lg group">
+                    {sosImage && (
+                        <Image
+                            src={sosImage.imageUrl}
+                            alt={sosImage.description}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            data-ai-hint={sosImage.imageHint}
+                        />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                    <CardContent className="relative z-10 flex flex-col justify-end h-full p-6 text-white">
+                        <div className='space-y-4'>
+                            <div className="flex items-center gap-4">
+                                <AlertTriangle className="w-8 h-8 text-destructive" />
+                                <h2 className="text-2xl font-bold font-headline">Emergency SOS</h2>
+                            </div>
+                            <p className="text-white/90">
+                                Press for immediate assistance. Your location and details will be shared.
+                            </p>
+                            <DialogTrigger asChild>
+                                <Button variant="destructive" className="w-full text-lg font-bold">
+                                    TRIGGER SOS
+                                </Button>
+                            </DialogTrigger>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground mb-4">
-                            Press for immediate assistance. Your location and details will be shared with campus security.
-                        </p>
-                        <DialogTrigger asChild>
-                            <Button variant="destructive" className="w-full text-lg font-bold">
-                                TRIGGER SOS
-                            </Button>
-                        </DialogTrigger>
                     </CardContent>
                 </Card>
                 <DialogContent className="max-w-4xl w-full h-full sm:h-auto max-h-[90vh] flex flex-col p-0">

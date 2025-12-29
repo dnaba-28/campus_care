@@ -31,9 +31,9 @@ export default function Home() {
         </div>
 
         {/* Floating Grid Container */}
-        <div className="relative z-20 -mt-32 bg-gray-100 pt-16 pb-16">
+        <div className="relative z-20 bg-gray-100 pt-16 pb-16">
           <div className="mx-auto w-full max-w-6xl px-4">
-            <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-2">
+             <div className="grid -mt-48 items-start gap-6 md:grid-cols-2 lg:grid-cols-2">
               <SosCard isModalOpen={isSosModalOpen} onOpenChange={setIsSosModalOpen} />
               <CafeteriaCard />
               <HospitalCard />

@@ -3,7 +3,7 @@
 import { useMemoFirebase } from '@/firebase/provider';
 import Navbar from '@/components/layout/navbar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useUser } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -39,13 +39,17 @@ const emergencyDetails = {
 
 export default function AdminPage() {
   const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
   
   const sosReportsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    // Wait until user loading is finished and user is authenticated
+    if (isUserLoading || !user || !firestore) return null;
     return query(collection(firestore, 'sos-reports'), orderBy('timestamp', 'desc'));
-  }, [firestore]);
+  }, [firestore, user, isUserLoading]);
 
-  const { data: sosReports, isLoading } = useCollection<SosReport>(sosReportsQuery);
+  const { data: sosReports, isLoading: isLoadingReports } = useCollection<SosReport>(sosReportsQuery);
+
+  const isLoading = isUserLoading || isLoadingReports;
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-slate-100">

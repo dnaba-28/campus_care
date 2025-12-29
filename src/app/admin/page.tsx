@@ -114,52 +114,52 @@ export default function AdminPage() {
       </header>
 
       <main className="p-4 md:p-8">
-        <div className="bg-black/30 border border-gray-800 rounded-xl shadow-2xl overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-black/50 border-b border-gray-800">
-              <tr>
-                <th className="p-4 text-sm font-medium uppercase tracking-wider">Status</th>
-                <th className="p-4 text-sm font-medium uppercase tracking-wider">Time</th>
-                <th className="p-4 text-sm font-medium uppercase tracking-wider">Alert</th>
-                <th className="p-4 text-sm font-medium uppercase tracking-wider">Location</th>
-                <th className="p-4 text-sm font-medium uppercase tracking-wider">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {alerts.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-12 text-gray-500">
-                    <CheckCircle size={48} className="mx-auto mb-4 text-green-500"/>
-                    No Active Emergencies. System is Clear.
-                  </td>
-                </tr>
-              ) : (
-                alerts.map((alert) => (
-                  <tr key={alert.id} className="border-b border-gray-800/50 hover:bg-gray-900/50 transition-colors data-[status=Active]:bg-red-950/40" data-status={alert.status}>
-                    <td className="p-4">
-                      <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded font-bold uppercase animate-pulse">
-                        {alert.status || 'Active'}
-                      </span>
-                    </td>
-                    <td className="p-4 text-gray-300">{new Date(alert.id).toLocaleTimeString()}</td>
-                    <td className="p-4 font-medium text-white">{alert.message || "Unknown Incident"}</td>
-                    <td className="p-4 flex items-center gap-2 text-gray-400">
-                      <MapPin size={14} />
-                      {alert.location || "Location Unknown"}
-                    </td>
-                    <td className="p-4">
-                      <button 
-                        onClick={() => resolveAlert(alert.id)}
-                        className="bg-green-800/80 hover:bg-green-700 text-white text-xs py-1 px-3 rounded transition-colors flex items-center justify-center gap-2"
-                      >
-                        <CheckCircle size={16} /> Resolve
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <div className="space-y-4">
+          {alerts.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <CheckCircle size={48} className="mx-auto mb-4 text-green-500"/>
+                No Active Emergencies. System is Clear.
+              </div>
+          ) : (
+            alerts.map((alert) => (
+              <div key={alert.id} className="bg-red-950/20 border border-red-900/50 p-4 rounded-lg relative group mb-4">
+                
+                {/* Header: Type and Time */}
+                <div className="flex justify-between items-start mb-2">
+                  <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded font-bold uppercase animate-pulse">
+                    {alert.type || 'EMERGENCY'}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(alert.time).toLocaleTimeString()}
+                  </span>
+                </div>
+            
+                {/* The User Details */}
+                <h3 className="text-white font-bold text-lg">{alert.senderName}</h3>
+                
+                {/* 🆔 THE DEVICE ID DISPLAY */}
+                <div className="bg-gray-900 inline-block px-2 py-1 rounded border border-gray-700 mt-1 mb-2">
+                  <p className="text-xs text-cyan-400 font-mono tracking-wider">
+                    ID: {alert.senderID}
+                  </p>
+                </div>
+            
+                {/* Location */}
+                <div className="flex items-center gap-2 text-gray-400 text-sm mb-4">
+                  <MapPin size={14} />
+                  {alert.location || "GPS Signal Weak"}
+                </div>
+            
+                {/* Resolve Button */}
+                <button 
+                  onClick={() => resolveAlert(alert.id)}
+                  className="w-full bg-green-800/80 hover:bg-green-700 text-white text-sm py-2 rounded transition-colors flex items-center justify-center gap-2"
+                >
+                  <CheckCircle size={16} /> Resolve Incident
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </main>
     </div>

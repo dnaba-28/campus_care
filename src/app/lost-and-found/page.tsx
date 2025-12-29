@@ -25,7 +25,7 @@ import { Badge } from '@/components/ui/badge';
 
 import { useFirestore } from '@/firebase';
 import { fbStorage } from '@/firebase';
-import { addDoc, collection, query, where, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
 

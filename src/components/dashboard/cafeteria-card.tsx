@@ -49,7 +49,7 @@ export default function CafeteriaCard() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    formData.append('api_key', CLOUDINARY_API_KEY);
+    formData.append('api_key', "943632988214242"); // Even for unsigned, key can be required
 
     try {
       const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {

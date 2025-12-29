@@ -27,6 +27,8 @@ const initialDoctors: Omit<Doctor, 'id'>[] = [
     { name: 'Dr. Sharma', specialty: 'General', status: 'Available' },
     { name: 'Dr. Roy', specialty: 'Dentist', status: 'On Break' },
     { name: 'Dr. Patel', specialty: 'Ortho', status: 'Available' },
+    { name: 'Dr. Chen', specialty: 'Pediatrics', status: 'Busy' },
+    { name: 'Dr. Williams', specialty: 'Cardiology', status: 'Available' },
 ];
 
 export default function AdminPage() {

@@ -21,7 +21,7 @@
     {
       "id": "sos-map",
       "description": "A map showing a location for an emergency.",
-      "imageUrl": "https://images.unsplash.com/photo-1598632640487-6ea4a4e8b963?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtYXAlMjBsb2NhdGlvbnxlbnwwfHx8fDE3Njk4MzM3MjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1530811761204-73237928a192?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtYXB8ZW58MHx8fHwxNzcwMDcxNTIyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "location map"
     }
   ]

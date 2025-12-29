@@ -13,6 +13,7 @@ type UserProfile = {
 
 export default function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [hasProfile, setHasProfile] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export default function Navbar() {
     setIsClient(true); // Mark that we are now on the client.
     const savedData = localStorage.getItem('student_profile');
     if (savedData) {
+      setHasProfile(true);
       try {
         const profile: UserProfile = JSON.parse(savedData);
         // Simple check: if the user's name is "Admin", they are an admin.
@@ -29,6 +31,9 @@ export default function Navbar() {
       } catch (e) {
         console.error("Failed to parse student_profile from localStorage", e);
       }
+    } else {
+      setHasProfile(false);
+      setIsAdmin(false);
     }
   }, []); // Empty dependency array ensures this runs only once.
 
@@ -80,13 +85,20 @@ export default function Navbar() {
   }
 
   // Now that we are on the client, we can safely determine the correct links to show.
-  const navLinks = isAdmin 
-    ? [...baseNavLinks, adminLink, userLink] 
-    : [...baseNavLinks, userLink];
+  let navLinks = [...baseNavLinks];
+  if(hasProfile) {
+      if(isAdmin) navLinks.push(adminLink);
+      navLinks.push(userLink);
+  }
     
-  const allMobileLinks = isAdmin
-    ? [...baseNavLinks, adminLink, userLink, authLink]
-    : [...baseNavLinks, userLink, authLink];
+  let allMobileLinks = [...baseNavLinks];
+  if(hasProfile) {
+    if(isAdmin) allMobileLinks.push(adminLink);
+    allMobileLinks.push(userLink);
+  } else {
+    allMobileLinks.push(authLink);
+  }
+
 
   return (
     <header className="sticky top-0 flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6 z-50">
@@ -142,9 +154,11 @@ export default function Navbar() {
 
       {/* Right side of Navbar */}
       <div className="hidden md:flex items-center gap-4">
-         <Button asChild variant="outline">
-            <Link href={authLink.href}>{authLink.label}</Link>
-        </Button>
+        {!hasProfile && (
+            <Button asChild variant="outline">
+                <Link href={authLink.href}>{authLink.label}</Link>
+            </Button>
+        )}
       </div>
     </header>
   );

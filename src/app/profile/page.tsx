@@ -1,10 +1,12 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, User, Building, Briefcase, Calendar } from 'lucide-react';
+import { ArrowLeft, User, Building, Briefcase, Calendar, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
-  
+  const router = useRouter();
+
   // Default State (Placeholder data if nothing is saved)
   const [profile, setProfile] = useState({
     name: "Guest User",
@@ -19,8 +21,16 @@ export default function ProfilePage() {
     const savedData = localStorage.getItem('student_profile');
     if (savedData) {
       setProfile(JSON.parse(savedData));
+    } else {
+      // If no data, maybe redirect to login
+      router.push('/login');
     }
-  }, []);
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('student_profile');
+    router.push('/login');
+  };
 
   return (
     <div className="min-h-screen bg-[#E6DBC9] font-sans pb-10">
@@ -54,6 +64,17 @@ export default function ProfilePage() {
             <DisplayRow icon={<Briefcase size={20}/>} color="bg-[#74B9FF]" label={profile.department} />
             <DisplayRow icon={<Calendar size={20} className="text-black"/>} color="bg-white" label={profile.year} />
           </div>
+        </div>
+
+        {/* Logout Button */}
+        <div className="w-full max-w-sm mt-8">
+          <button
+            onClick={handleLogout}
+            className="w-full bg-red-600 text-white py-4 rounded-full text-lg font-bold shadow-xl flex items-center justify-center gap-2 hover:bg-red-700 transition"
+          >
+            <LogOut size={20} />
+            Logout
+          </button>
         </div>
 
       </main>

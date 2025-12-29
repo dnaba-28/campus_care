@@ -39,7 +39,7 @@ export default function Navbar() {
   ];
   const adminLink = { href: '/admin', label: 'Admin' };
   const userLink = { href: '/profile', label: 'Profile' };
-  const authLinks = [{ href: '/login', label: 'Login' }];
+  const authLink = { href: '/login', label: 'Login' };
 
   // Don't render the dynamic links until we're on the client and know the user's status.
   // This prevents the flicker/incorrect state during server-side rendering and hydration.
@@ -56,6 +56,25 @@ export default function Navbar() {
                     <Link href="/login">Login</Link>
                 </Button>
             </div>
+             <div className="flex items-center gap-4 md:hidden">
+                <span className="font-headline text-xl font-bold">CARE-CAMPUS</span>
+                <Sheet>
+                    <SheetTrigger asChild>
+                    <Button variant="outline" size="icon" className="shrink-0">
+                        <Menu className="h-5 w-5" />
+                        <span className="sr-only">Toggle navigation menu</span>
+                    </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right">
+                    <nav className="grid gap-6 text-lg font-medium">
+                        <Link href="#" className="flex items-center gap-2 text-lg font-semibold">
+                        <HeartPulse className="h-6 w-6 text-primary" />
+                        <span className="sr-only">CARE-CAMPUS</span>
+                        </Link>
+                    </nav>
+                    </SheetContent>
+                </Sheet>
+            </div>
         </header>
     );
   }
@@ -66,8 +85,8 @@ export default function Navbar() {
     : [...baseNavLinks, userLink];
     
   const allMobileLinks = isAdmin
-    ? [...baseNavLinks, adminLink, userLink, ...authLinks]
-    : [...baseNavLinks, userLink, ...authLinks];
+    ? [...baseNavLinks, adminLink, userLink, authLink]
+    : [...baseNavLinks, userLink, authLink];
 
   return (
     <header className="sticky top-0 flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6 z-50">
@@ -123,11 +142,9 @@ export default function Navbar() {
 
       {/* Right side of Navbar */}
       <div className="hidden md:flex items-center gap-4">
-        {authLinks.map(link => (
-             <Button asChild key={link.label} variant="outline">
-                <Link href={link.href}>{link.label}</Link>
-            </Button>
-        ))}
+         <Button asChild variant="outline">
+            <Link href={authLink.href}>{authLink.label}</Link>
+        </Button>
       </div>
     </header>
   );

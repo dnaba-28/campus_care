@@ -1,0 +1,50 @@
+/**
+ * Core Philosophy: This ruleset is designed for a public information board. It
+ * allows any user, authenticated or not, to read information about doctors. To
+ * ensure data integrity and enforce the "admin-only" update model described, all
+ * direct write operations from the client-side are strictly prohibited.
+ *
+ * Data Structure: The data is organized in a single top-level collection:
+ *   - /doctors/{doctorId}: Stores public information for each doctor.
+ *
+ * Key Security Decisions:
+ * - Public Read Access: The `/doctors` collection is publicly readable to
+ *   support the live status display for all app users.
+ * - No Client-Side Writes: All `create`, `update`, and `delete` operations are
+ *   disabled for clients. This enforces the security model where data
+ *   modifications can only be performed by a trusted backend server using the
+ *   Firebase Admin SDK, which bypasses these security rules. This is the
+ *   safest interpretation of an "admin-controlled" feature in the absence of
+ *   a formal user authentication and roles system.
+ * - Denormalization for Authorization: Not applicable, as there are no user-
+ *   specific roles or ownership data required for authorization decisions.
+ * - Structural Segregation: Not applicable, as all data is treated as public.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description
+     *   Manages doctor information. This data is public for reading by anyone
+     *   to display real-time hospital status. All writes are blocked to
+     *   ensure modifications only come from a trusted backend.
+     * @path
+     *   /doctors/{doctorId}
+     * @allow
+     *   (get): An unauthenticated user can read a doctor's status document.
+     * @deny
+     *   (update): Any client trying to change a doctor's status will be rejected.
+     * @principle
+     *   Public read-only data. All modifications must be handled by a trusted
+     *   backend service using the Admin SDK, which bypasses these rules.
+     */
+    match /doctors/{doctorId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}

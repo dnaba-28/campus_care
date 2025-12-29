@@ -80,12 +80,13 @@ export default function SosAnalyzerCard() {
     switch (status) {
       case 'recording':
         return (
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center gap-2 text-destructive">
-                <div className="w-3 h-3 rounded-full bg-destructive animate-pulse"></div>
-                <span className="font-medium">Recording...</span>
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="relative flex items-center justify-center w-24 h-24">
+                <div className="absolute inset-0 bg-destructive/20 rounded-full animate-pulse"></div>
+                <AudioWaveform className="w-10 h-10 text-destructive" />
             </div>
-            <Button onClick={handleStopRecording} variant="destructive" size="lg">
+            <p className="font-semibold text-destructive">Recording in progress...</p>
+            <Button onClick={handleStopRecording} variant="destructive" size="lg" className="rounded-full">
               <Square className="mr-2 h-5 w-5" /> Stop Recording
             </Button>
           </div>
@@ -94,33 +95,39 @@ export default function SosAnalyzerCard() {
         return (
           <div className="flex flex-col items-center gap-4 text-primary">
             <Loader2 className="h-10 w-10 animate-spin" />
-            <p className="font-semibold">Analyzing report...</p>
+            <p className="font-semibold">Analyzing report, please wait...</p>
+            <p className="text-sm text-muted-foreground">The AI is generating recommendations.</p>
           </div>
         );
       case 'success':
         return (
           <div className="flex flex-col items-center gap-4 text-left w-full">
-            <h3 className="font-bold text-lg font-headline">Analysis Complete</h3>
-            <p className="text-sm bg-muted p-3 rounded-md">{analysis}</p>
+            <h3 className="font-bold text-lg font-headline self-center">Analysis Complete</h3>
+            <div className="w-full p-4 bg-muted/50 rounded-lg border">
+                <p className="text-sm text-foreground">{analysis}</p>
+            </div>
             <Button onClick={resetState} variant="outline">Record Another Report</Button>
           </div>
         );
       case 'error':
         return (
-           <div className="flex flex-col items-center gap-4 text-destructive">
+           <div className="flex flex-col items-center gap-4 text-destructive text-center">
             <AlertCircle className="h-10 w-10" />
-            <p className="font-semibold text-center">{errorMessage}</p>
+            <p className="font-semibold">{errorMessage}</p>
             <Button onClick={resetState} variant="outline">Try Again</Button>
           </div>
         )
       case 'idle':
       default:
         return (
-          <div className="flex flex-col items-center gap-4">
-            <p className="text-center text-sm text-muted-foreground">
-              Press the button to record an audio SOS report. The AI will analyze it and suggest actions.
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="p-4 bg-primary/10 rounded-full">
+              <Mic className="w-8 h-8 text-primary" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Press the button to record an audio SOS report. The AI will analyze it and suggest actions for the admin team.
             </p>
-            <Button onClick={handleStartRecording} size="lg">
+            <Button onClick={handleStartRecording} size="lg" className="rounded-full">
               <Mic className="mr-2 h-5 w-5" /> Start Recording
             </Button>
           </div>
@@ -129,7 +136,7 @@ export default function SosAnalyzerCard() {
   };
 
   return (
-    <Card className="row-span-2">
+    <Card className="row-span-2 flex flex-col">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
@@ -139,7 +146,7 @@ export default function SosAnalyzerCard() {
           <AudioWaveform className="h-5 w-5 text-muted-foreground" />
         </div>
       </CardHeader>
-      <CardContent className="flex items-center justify-center min-h-[150px]">
+      <CardContent className="flex flex-1 items-center justify-center min-h-[180px]">
         {renderContent()}
       </CardContent>
     </Card>

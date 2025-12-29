@@ -9,7 +9,7 @@ import Image from 'next/image';
 
 const mockFoundItems = [
   { id: 1, name: 'iPhone 13', description: 'Found near the library. Black color, has a small crack on the top left.', location: 'Library', date: '2024-07-20', imageUrl: 'https://picsum.photos/seed/iphone/300/200', user: 'Priya S.' },
-  { id: 2, name: 'Student ID Card', description: 'Enrollment No: 22BCE1054. Found in the cafeteria.', location: 'Cafeteria', date: '2024-07-19', imageUrl: 'https://picsum.photos/seed/idcard/300/200', user: 'Admin' },
+  { id: 2, name: 'Student ID Card', description: 'Enrollment No: 22BCE1054. Found in the cafeteria.', location: 'Cafeteria', date: '2024-07-19', imageUrl: 'https://placehold.co/300x200/E2E8F0/475569?text=Student+ID', user: 'Admin' },
   { id: 3, name: 'Black Umbrella', description: 'Standard black umbrella, left in Lecture Hall 5.', location: 'Lecture Hall 5', date: '2024-07-18', imageUrl: 'https://picsum.photos/seed/umbrella/300/200', user: 'Raj K.' },
   { id: 4, name: 'Calculator (Casio)', description: 'Scientific calculator found in the math department.', location: 'Math Department', date: '2024-07-18', imageUrl: 'https://picsum.photos/seed/calculator/300/200', user: 'Amit G.' },
 ];

@@ -20,8 +20,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle, ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useFirestore } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { ref, push } from 'firebase/database';
 
 
 type EmergencyType = 'FIRE' | 'HEALTH' | 'SAFETY' | 'ACCIDENT' | null;
@@ -49,7 +49,6 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         blockNo: '',
     });
     const { toast } = useToast();
-    const firestore = useFirestore();
     const sosImage = PlaceHolderImages.find(p => p.id === 'sos-map');
     
     useEffect(() => {
@@ -86,16 +85,16 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const location = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
-                saveAlertToFirestore(location);
+                saveAlert(location);
             },
             () => {
-                saveAlertToFirestore("Unknown Location (GPS denied)");
+                saveAlert("Unknown Location (GPS denied)");
             }
         );
     };
 
-    const saveAlertToFirestore = async (location: string) => {
-        if (!firestore) {
+    const saveAlert = (location: string) => {
+        if (!db) {
             toast({
                 variant: "destructive",
                 title: "Database Error",
@@ -108,13 +107,11 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
           emergencyType: selectedEmergency,
           userDetails: userDetails,
           location: location,
-          time: new Date().toISOString(), // Using ISO string for cross-platform compatibility
-          timestamp: serverTimestamp(), // For Firestore's ordering
+          time: new Date().toISOString(),
         };
         
         try {
-            const reportsCollection = collection(firestore, 'sos-reports');
-            const docRef = await addDoc(reportsCollection, newAlert);
+            push(ref(db, 'alerts/'), newAlert);
 
             setShowConfirmation(false);
             toast({
@@ -124,7 +121,7 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                         <span className="font-bold">SOS Sent to Security Cloud!</span>
                     </div>
                 ),
-                description: `Your ${selectedEmergency} alert has been sent. ID: ${docRef.id.substring(0,6)}...`,
+                description: `Your ${selectedEmergency} alert has been received.`,
             });
 
             setTimeout(() => {
@@ -133,7 +130,7 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
             }, 1500);
 
         } catch (error) {
-            console.error("Error sending SOS to Firestore:", error);
+            console.error("Error sending SOS to Firebase:", error);
             toast({
                 variant: "destructive",
                 title: "SOS Failed",

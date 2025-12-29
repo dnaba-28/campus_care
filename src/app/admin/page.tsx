@@ -1,56 +1,58 @@
 'use client';
-import React, { useState } from 'react';
-import { Shield, Lock, AlertTriangle, MapPin, CheckCircle, Activity, Trash2, ShieldX } from 'lucide-react';
-import { useUser, useFirestore, useCollection, initiateAnonymousSignIn, useAuth } from '@/firebase';
-import { collection, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { Shield, Lock, AlertTriangle, MapPin, CheckCircle, Activity, ShieldX } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { ref, onValue, remove } from 'firebase/database';
 
 export default function AdminPage() {
-  const { user, isUserLoading } = useUser();
-  const auth = useAuth();
-  const firestore = useFirestore();
-  
-  const alertsQuery = firestore ? query(collection(firestore, 'sos-reports'), orderBy('timestamp', 'desc')) : null;
-  const { data: alerts, isLoading: alertsLoading } = useCollection(alertsQuery);
-
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  
-  // Use user's auth state for isAuthenticated, but only if they are the 'Admin' user.
-  // The PIN is now a fallback for local testing without the specific "Admin" login.
-  const isPinAuthenticated = password === 'NITA2028';
-  const isAdminUser = user && !user.isAnonymous; // A simple check for any logged-in (non-anonymous) user.
-  const isAuthenticated = isAdminUser || isPinAuthenticated;
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Effect to listen for real-time Firebase updates
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    setIsLoading(true);
+    const alertsRef = ref(db, 'alerts/');
+    const unsubscribe = onValue(alertsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const list = Object.entries(data).map(([key, value]: any) => ({ id: key, ...value })).reverse();
+        setAlerts(list);
+      } else {
+        setAlerts([]);
+      }
+      setIsLoading(false);
+    });
+
+    // Cleanup subscription on component unmount
+    return () => unsubscribe();
+  }, [isAuthenticated]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === 'NITA2028') {
+      setIsAuthenticated(true);
       setError('');
-      // This is now just for local bypass, real auth is handled by Firebase
     } else {
       setError('⛔ Access Denied: Invalid Security Clearance');
     }
   };
 
   const resolveAlert = (id: string) => {
-    if (!firestore) return;
-    const alertRef = doc(firestore, 'sos-reports', id);
-    deleteDoc(alertRef);
+    const alertRef = ref(db, `alerts/${id}`);
+    remove(alertRef);
   };
   
   const clearAllAlerts = () => {
-    if (!firestore || !alerts) return;
-    alerts.forEach(alert => {
-        const alertRef = doc(firestore, 'sos-reports', alert.id);
-        deleteDoc(alertRef);
-    });
+    const alertsRef = ref(db, 'alerts/');
+    remove(alertsRef);
   };
 
-  if (!isAuthenticated && !isUserLoading) {
-    if (auth && !user) {
-        // Automatically trigger anon sign-in if not logged in at all.
-        // This is a failsafe if the main provider hasn't kicked in yet.
-        initiateAnonymousSignIn(auth);
-    }
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
         <div className="bg-gray-900 border border-gray-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center backdrop-blur-sm bg-opacity-70">
@@ -91,7 +93,7 @@ export default function AdminPage() {
         </div>
         <div className="flex gap-4 text-sm items-center">
           <span className="flex items-center gap-2 text-green-400"><Activity size={16}/> System Online</span>
-          <span className="flex items-center gap-2 text-red-400"><AlertTriangle size={16}/> Active Threats: {alerts?.length ?? 0}</span>
+          <span className="flex items-center gap-2 text-red-400"><AlertTriangle size={16}/> Active Threats: {alerts.length}</span>
           <button onClick={clearAllAlerts} className="flex items-center gap-2 text-gray-500 hover:text-red-400 transition-colors">
             <ShieldX size={16}/> Clear All
           </button>
@@ -100,12 +102,12 @@ export default function AdminPage() {
 
       <main className="p-4 md:p-8">
         <div className="space-y-4">
-          {alertsLoading ? (
+          {isLoading ? (
              <div className="text-center py-12 text-gray-500">
                 <Activity size={48} className="mx-auto mb-4 text-blue-500 animate-spin"/>
                 Connecting to Secure Feed...
               </div>
-          ) : alerts?.length === 0 ? (
+          ) : alerts.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <CheckCircle size={48} className="mx-auto mb-4 text-green-500"/>
                 No Active Emergencies. System is Clear.

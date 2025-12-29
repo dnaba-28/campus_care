@@ -31,7 +31,7 @@ export default function GlobalAIChatbot() {
                     Need immediate first-aid advice or have a safety question?
                 </p>
             </div>
-            <Button asChild variant="ghost" className="w-full justify-start p-0 h-auto hover:bg-transparent text-white/80 hover:text-white">
+            <Button asChild className="w-full bg-white text-slate-800 hover:bg-slate-200">
                 <Link href="/chat">
                     Start a Conversation <ArrowRight className="ml-2" />
                 </Link>

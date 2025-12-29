@@ -1,3 +1,5 @@
+'use client';
+
 import Navbar from '@/components/layout/navbar';
 import SosCard from '@/components/dashboard/sos-card';
 import HospitalCard from '@/components/dashboard/hospital-card';

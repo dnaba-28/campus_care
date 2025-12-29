@@ -17,7 +17,14 @@ export default function AdminPage() {
       const loadAlerts = () => {
         const savedAlerts = localStorage.getItem('admin_alerts');
         if (savedAlerts) {
-          setAlerts(JSON.parse(savedAlerts));
+          try {
+            setAlerts(JSON.parse(savedAlerts));
+          } catch(e) {
+            console.error("Failed to parse alerts from localStorage", e);
+            setAlerts([]);
+          }
+        } else {
+          setAlerts([]);
         }
       };
 

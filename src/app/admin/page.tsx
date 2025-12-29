@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemoFirebase } from '@/firebase/provider';
 import Navbar from '@/components/layout/navbar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useCollection, useFirestore } from '@/firebase';
@@ -40,7 +40,7 @@ const emergencyDetails = {
 export default function AdminPage() {
   const firestore = useFirestore();
   
-  const sosReportsQuery = useMemo(() => {
+  const sosReportsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'sos-reports'), orderBy('timestamp', 'desc'));
   }, [firestore]);

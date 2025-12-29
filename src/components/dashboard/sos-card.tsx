@@ -20,9 +20,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle, ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useFirestore, addDocumentNonBlocking } from '@/firebase';
-import { collection } from 'firebase/firestore';
-
 
 // Mock user data as per requirements
 const currentUser = {
@@ -61,7 +58,6 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     });
     const { toast } = useToast();
     const sosImage = PlaceHolderImages.find(p => p.id === 'sos-map');
-    const firestore = useFirestore();
     
     useEffect(() => {
         if (currentUser) {
@@ -86,20 +82,38 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                 return; // Stop the function
             }
         }
-        
-        // 2. Create the payload with a precise timestamp
-        const payload = {
-            userDetails,
-            emergencyType: selectedEmergency,
-            timestamp: new Date().toISOString(),
+
+        // Get location
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const location = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
+                saveAlert(location);
+            },
+            () => {
+                // If geolocation fails, use a fallback
+                saveAlert("Unknown Location");
+            }
+        );
+    };
+
+    const saveAlert = (location: string) => {
+        const timestamp = new Date();
+        // 2. Create the payload
+        const newAlert = {
+            id: timestamp.getTime(),
+            type: selectedEmergency,
+            message: `Emergency at ${userDetails.hostelName}`,
+            location: location,
+            time: timestamp.toISOString(),
+            status: 'Active',
+            user: userDetails
         };
 
-        // 3. Save to Firestore
-        if (firestore) {
-            const sosReportsCollection = collection(firestore, 'sos-reports');
-            // Use the non-blocking function to send data without waiting
-            addDocumentNonBlocking(sosReportsCollection, payload);
-        }
+        // 3. Save to localStorage for the admin panel
+        const existingAlerts = JSON.parse(localStorage.getItem('admin_alerts') || '[]');
+        const updatedAlerts = [...existingAlerts, newAlert];
+        localStorage.setItem('admin_alerts', JSON.stringify(updatedAlerts));
+
 
         // 4. Close the confirmation and show success feedback
         setShowConfirmation(false);
@@ -107,7 +121,7 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
             title: (
                 <div className="flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    <span className="font-bold">SOS Sent!</span>
+                    <span className="font-bold">SOS Sent! Admin Notified.</span>
                 </div>
             ),
             description: `Your ${selectedEmergency} alert has been sent. The admin team is notified.`,
@@ -234,5 +248,4 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         </>
     );
 }
-
-    
+ 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -13,14 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, Search, Upload, Loader2, PackageOpen, AlertTriangle } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { PlusCircle, Search, Upload, Loader2, PackageOpen, AlertTriangle, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 import { useFirestore } from '@/firebase';
@@ -28,7 +22,6 @@ import { fbStorage } from '@/firebase';
 import { addDoc, collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
-
 
 const itemSchema = z.object({
   description: z.string().min(10, 'Please provide a detailed description.'),
@@ -48,7 +41,7 @@ type ReportedItem = {
   timestamp: Timestamp;
 };
 
-function ReportItemForm({ onFormSubmit }: { onFormSubmit: () => void }) {
+function ReportItemForm({ onFormSubmit, onCancel }: { onFormSubmit: () => void; onCancel: () => void; }) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,8 +54,6 @@ function ReportItemForm({ onFormSubmit }: { onFormSubmit: () => void }) {
       category: 'found',
     },
   });
-
-  const selectedCategory = watch('category');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -118,63 +109,75 @@ function ReportItemForm({ onFormSubmit }: { onFormSubmit: () => void }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div
-        className="p-4 border-2 border-dashed rounded-lg text-center cursor-pointer"
-        onClick={() => fileInputRef.current?.click()}
-      >
-        {imagePreview ? (
-          <div className="relative w-full h-48">
-            <Image src={imagePreview} alt="Item preview" layout="fill" objectFit="cover" className="rounded-md" />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-2 text-muted-foreground py-6">
-            <Upload className="w-12 h-12" />
-            <p className="font-semibold mt-2">Click to Upload an Image</p>
-            <p className="text-sm">This is required</p>
-          </div>
-        )}
-        <Input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-          accept="image/*"
-        />
-        {errors.image && <p className="text-sm text-destructive mt-2">{errors.image.message as string}</p>}
-      </div>
-
-      <div>
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" placeholder="e.g., Black wallet with a driver's license found near..." {...register('description')} />
-        {errors.description && <p className="text-sm text-destructive mt-1">{errors.description.message}</p>}
-      </div>
-
-      <div>
-        <Label htmlFor="phone">Contact Phone Number</Label>
-        <Input id="phone" type="tel" placeholder="1234567890" {...register('phone')} />
-        {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>}
-      </div>
-      
-      <div>
-        <Label>I have...</Label>
-        <Controller
-          name="category"
-          control={control}
-          render={({ field }) => (
-             <div className="grid grid-cols-2 gap-2 mt-1">
-                <Button type="button" variant={field.value === 'found' ? 'default' : 'outline'} onClick={() => field.onChange('found')}>Found an Item</Button>
-                <Button type="button" variant={field.value === 'lost' ? 'default' : 'outline'} onClick={() => field.onChange('lost')}>Lost an Item</Button>
+    <Card>
+        <CardHeader>
+            <div className='flex justify-between items-center'>
+                <CardTitle className="text-2xl font-bold font-headline">Report an Item</CardTitle>
+                <Button variant="ghost" size="icon" onClick={onCancel}>
+                    <X className="h-6 w-6" />
+                </Button>
             </div>
-          )}
-        />
-      </div>
+        </CardHeader>
+        <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <div
+                    className="p-4 border-2 border-dashed rounded-lg text-center cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                >
+                    {imagePreview ? (
+                    <div className="relative w-full h-48">
+                        <Image src={imagePreview} alt="Item preview" layout="fill" objectFit="cover" className="rounded-md" />
+                    </div>
+                    ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground py-6">
+                        <Upload className="w-12 h-12" />
+                        <p className="font-semibold mt-2">Click to Upload an Image</p>
+                        <p className="text-sm">This is required</p>
+                    </div>
+                    )}
+                    <Input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept="image/*"
+                    />
+                    {errors.image && <p className="text-sm text-destructive mt-2">{errors.image.message as string}</p>}
+                </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {isSubmitting ? `Submitting...` : `Submit Report`}
-      </Button>
-    </form>
+                <div>
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" placeholder="e.g., Black wallet with a driver's license found near..." {...register('description')} />
+                    {errors.description && <p className="text-sm text-destructive mt-1">{errors.description.message}</p>}
+                </div>
+
+                <div>
+                    <Label htmlFor="phone">Contact Phone Number</Label>
+                    <Input id="phone" type="tel" placeholder="1234567890" {...register('phone')} />
+                    {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>}
+                </div>
+                
+                <div>
+                    <Label>I have...</Label>
+                    <Controller
+                    name="category"
+                    control={control}
+                    render={({ field }) => (
+                        <div className="grid grid-cols-2 gap-2 mt-1">
+                            <Button type="button" variant={field.value === 'found' ? 'default' : 'outline'} onClick={() => field.onChange('found')}>Found an Item</Button>
+                            <Button type="button" variant={field.value === 'lost' ? 'default' : 'outline'} onClick={() => field.onChange('lost')}>Lost an Item</Button>
+                        </div>
+                    )}
+                    />
+                </div>
+
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isSubmitting ? `Submitting...` : `Submit Post`}
+                </Button>
+            </form>
+        </CardContent>
+    </Card>
   );
 }
 
@@ -195,7 +198,7 @@ function ItemCard({ item }: { item: ReportedItem }) {
 }
 
 export default function LostAndFoundPage() {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isReporting, setIsReporting] = useState(false);
     const [items, setItems] = useState<ReportedItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -227,64 +230,63 @@ export default function LostAndFoundPage() {
       <Navbar />
       <main className="flex-1 p-4 md:p-8">
         <div className="mx-auto w-full max-w-4xl">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-2xl font-bold font-headline flex items-center gap-2">
-                    <Search />
-                    Lost & Found Center
-                  </CardTitle>
-                  <CardDescription>Browse reported items or report a new one.</CardDescription>
+          {isReporting ? (
+            <ReportItemForm 
+                onFormSubmit={() => setIsReporting(false)} 
+                onCancel={() => setIsReporting(false)}
+            />
+          ) : (
+            <Card>
+                <CardHeader>
+                <div className="flex justify-between items-center">
+                    <div>
+                    <CardTitle className="text-2xl font-bold font-headline flex items-center gap-2">
+                        <Search />
+                        Lost &amp; Found Center
+                    </CardTitle>
+                    <CardDescription>Browse reported items or report a new one.</CardDescription>
+                    </div>
+                    <Button onClick={() => setIsReporting(true)}><PlusCircle className="mr-2" /> Report an Item</Button>
                 </div>
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button><PlusCircle className="mr-2" /> Report an Item</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Report a Lost or Found Item</DialogTitle>
-                        </DialogHeader>
-                        <ReportItemForm onFormSubmit={() => setIsDialogOpen(false)} />
-                    </DialogContent>
-                </Dialog>
-              </div>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-6">
-                    {isLoading && (
-                        <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
-                            <Loader2 className="w-12 h-12 animate-spin mb-4" />
-                            <p>Loading items...</p>
-                        </div>
-                    )}
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-6">
+                        {isLoading && (
+                            <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
+                                <Loader2 className="w-12 h-12 animate-spin mb-4" />
+                                <p>Loading items...</p>
+                            </div>
+                        )}
 
-                    {error && (
-                         <div className="text-center p-8 bg-red-50 border border-red-200 rounded-lg">
-                            <AlertTriangle className="mx-auto h-8 w-8 text-red-500 mb-4" />
-                            <h3 className="font-semibold text-red-800">Could Not Load Items</h3>
-                            <p className="text-sm text-red-700 mt-1">{error}</p>
-                         </div>
-                    )}
-                    
-                    {!isLoading && !error && items.length === 0 && (
-                        <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
-                            <PackageOpen className="w-16 h-16 mb-4" />
-                            <h3 className="text-xl font-semibold">No items reported yet.</h3>
-                            <p>Be the first to report a lost or found item!</p>
-                        </div>
-                    )}
+                        {error && (
+                            <div className="text-center p-8 bg-red-50 border border-red-200 rounded-lg">
+                                <AlertTriangle className="mx-auto h-8 w-8 text-red-500 mb-4" />
+                                <h3 className="font-semibold text-red-800">Could Not Load Items</h3>
+                                <p className="text-sm text-red-700 mt-1">{error}</p>
+                            </div>
+                        )}
+                        
+                        {!isLoading && !error && items.length === 0 && (
+                            <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
+                                <PackageOpen className="w-16 h-16 mb-4" />
+                                <h3 className="text-xl font-semibold">No items reported yet.</h3>
+                                <p>Be the first to report a lost or found item!</p>
+                            </div>
+                        )}
 
-                    {!isLoading && !error && items.length > 0 && (
-                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {items.map(item => <ItemCard key={item.id} item={item} />)}
-                        </div>
-                    )}
-                </div>
-            </CardContent>
-          </Card>
+                        {!isLoading && !error && items.length > 0 && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {items.map(item => <ItemCard key={item.id} item={item} />)}
+                            </div>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+          )}
         </div>
       </main>
     </div>
   );
 }
+
+    

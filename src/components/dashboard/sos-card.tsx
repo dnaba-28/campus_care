@@ -75,17 +75,33 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     };
 
     const handleSendSOS = () => {
+        // 1. Validate that all userDetails are filled
+        for (const key in userDetails) {
+            if (!userDetails[key as keyof typeof userDetails]) {
+                toast({
+                    variant: "destructive",
+                    title: "Missing Information",
+                    description: "Please fill out all your details before sending an SOS.",
+                });
+                return; // Stop the function
+            }
+        }
+        
+        // 2. Create the payload with a precise timestamp
         const payload = {
             userDetails,
             emergencyType: selectedEmergency,
             timestamp: new Date().toISOString(),
         };
 
+        // 3. Save to Firestore
         if (firestore) {
             const sosReportsCollection = collection(firestore, 'sos-reports');
+            // Use the non-blocking function to send data without waiting
             addDocumentNonBlocking(sosReportsCollection, payload);
         }
 
+        // 4. Close the confirmation and show success feedback
         setShowConfirmation(false);
         toast({
             title: (
@@ -94,13 +110,14 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                     <span className="font-bold">SOS Sent!</span>
                 </div>
             ),
-            description: `Your alert for ${selectedEmergency} has been sent. Security is notified.`,
+            description: `Your ${selectedEmergency} alert has been sent. The admin team is notified.`,
         });
 
+        // 5. Close the main SOS modal after a delay
         setTimeout(() => {
             onOpenChange?.(false);
-            setSelectedEmergency(null);
-        }, 3000);
+            setSelectedEmergency(null); // Reset for next time
+        }, 1500);
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,34 +128,35 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     return (
         <>
             <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
-                <Card className="relative overflow-hidden rounded-2xl shadow-lg group h-full">
-                     {sosImage && (
-                        <Image
-                        src={sosImage.imageUrl}
-                        alt={sosImage.description}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        data-ai-hint={sosImage.imageHint}
-                        />
-                    )}
-                     <div className="absolute inset-0 bg-gradient-to-t from-red-800/80 to-red-600/40"></div>
-                    <CardContent className="relative z-10 flex flex-col justify-between h-full p-6 text-white">
-                        <div className='space-y-2'>
-                            <div className="flex items-center gap-4">
-                                <AlertTriangle className="w-8 h-8" />
-                                <h2 className="text-2xl font-bold font-headline">EMERGENCY SOS</h2>
+                <DialogTrigger asChild>
+                     <Card className="relative overflow-hidden rounded-2xl shadow-lg group h-full cursor-pointer">
+                         {sosImage && (
+                            <Image
+                            src={sosImage.imageUrl}
+                            alt={sosImage.description}
+                            fill
+                            objectFit="cover"
+                            className="transition-transform duration-300 group-hover:scale-105"
+                            data-ai-hint={sosImage.imageHint}
+                            />
+                        )}
+                         <div className="absolute inset-0 bg-gradient-to-t from-red-800/80 to-red-600/40"></div>
+                        <CardContent className="relative z-10 flex flex-col justify-between h-full p-6 text-white">
+                            <div className='space-y-2'>
+                                <div className="flex items-center gap-4">
+                                    <AlertTriangle className="w-8 h-8" />
+                                    <h2 className="text-2xl font-bold font-headline">EMERGENCY SOS</h2>
+                                </div>
+                                <p className="text-white/90">
+                                    In a critical situation? Press for immediate assistance.
+                                </p>
                             </div>
-                            <p className="text-white/90">
-                                In a critical situation? Press for immediate assistance.
-                            </p>
-                        </div>
-                        <DialogTrigger asChild>
-                            <Button className="w-full bg-white text-slate-800 hover:bg-slate-200">
+                            <Button className="w-full bg-white text-slate-800 hover:bg-slate-200 pointer-events-none">
                                 Send Alert <ArrowRight className="ml-2" />
                             </Button>
-                        </DialogTrigger>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                </DialogTrigger>
                 <DialogContent className="max-w-4xl w-full h-full sm:h-auto max-h-[90vh] flex flex-col p-0">
                     <DialogHeader className="p-6 pb-2">
                         <DialogTitle className="text-2xl font-bold font-headline">Smart SOS System</DialogTitle>
@@ -216,3 +234,5 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         </>
     );
 }
+
+    

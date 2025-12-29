@@ -20,8 +20,8 @@ export default function Home() {
           <Image
             src="https://res.cloudinary.com/diw7x4ii3/image/upload/v1719242945/nita_campus_1.jpg"
             alt="NIT Agartala Campus"
-            layout="fill"
-            objectFit="cover"
+            fill
+            style={{objectFit: "cover"}}
             className="z-0"
           />
           <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent" />

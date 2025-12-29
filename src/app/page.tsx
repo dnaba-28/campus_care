@@ -12,13 +12,13 @@ export default function Home() {
   const [isSosModalOpen, setIsSosModalOpen] = useState(false);
   
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-50">
+    <div className="flex min-h-screen w-full flex-col">
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 bg-gray-100">
         {/* Hero Section */}
         <div className="relative h-[500px] w-full">
           <Image
-            src="https://res.cloudinary.com/diw7x4ii3/image/upload/v1719242945/nita_campus_1.jpg"
+            src="https://images.collegedunia.com/public/college_data/images/appImage/1503896434cover.jpg"
             alt="NIT Agartala Campus"
             fill
             style={{objectFit: "cover"}}

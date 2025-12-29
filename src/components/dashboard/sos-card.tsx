@@ -18,8 +18,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle } from 'lucide-react';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 // Mock user data as per requirements
 const currentUser = {
@@ -57,8 +55,6 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         blockNo: '',
     });
     const { toast } = useToast();
-
-    const sosImage = PlaceHolderImages.find(p => p.id === 'sos-map');
     
     useEffect(() => {
         if (currentUser) {
@@ -105,29 +101,18 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     return (
         <>
             <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
-                <Card className="relative flex flex-col h-full overflow-hidden group">
-                    {sosImage && (
-                        <Image
-                            src={sosImage.imageUrl}
-                            alt={sosImage.description}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            data-ai-hint={sosImage.imageHint}
-                        />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-red-900/80 via-red-900/50 to-transparent"></div>
-                    
-                    <CardContent className="relative flex-1 flex flex-col justify-between p-6 text-primary-foreground z-10">
+                <Card className="flex flex-col h-full bg-white/90 backdrop-blur-md shadow-2xl border border-white/50 rounded-2xl">
+                    <CardContent className="flex-1 flex flex-col justify-between p-6 z-10">
                         <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary-foreground/20 rounded-full">
+                        <div className="p-2 bg-red-500/10 text-red-500 rounded-full">
                             <AlertTriangle className="w-6 h-6" />
                         </div>
-                        <h3 className="text-2xl font-bold font-headline">EMERGENCY SOS</h3>
+                        <h3 className="text-2xl font-bold font-headline text-slate-800">EMERGENCY SOS</h3>
                         </div>
 
-                        <div className="space-y-4">
-                        <p className="font-semibold text-lg drop-shadow-md">
-                            Press the button for immediate assistance. Your location will be shared with security.
+                        <div className="space-y-4 mt-4">
+                        <p className="font-semibold text-lg text-slate-600">
+                            Press for immediate assistance. Your location will be shared with security.
                         </p>
                         <DialogTrigger asChild>
                             <Button variant="destructive" className="w-full text-lg font-bold">

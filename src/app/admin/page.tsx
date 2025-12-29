@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Shield, Lock, AlertTriangle, MapPin, CheckCircle, Activity } from 'lucide-react';
+import { Shield, Lock, AlertTriangle, MapPin, CheckCircle, Activity, Trash2, ShieldX } from 'lucide-react';
 
 export default function AdminPage() {
   // 🔒 STATE: Controls if the page is visible or locked
@@ -11,13 +11,25 @@ export default function AdminPage() {
   // 🛡️ THE MOCK DATABASE (Alerts)
   const [alerts, setAlerts] = useState<any[]>([]);
 
-  // Load alerts when the dashboard unlocks
+  // Load alerts when the dashboard unlocks and set up a listener for real-time updates
   useEffect(() => {
     if (isAuthenticated) {
-      const savedAlerts = localStorage.getItem('admin_alerts');
-      if (savedAlerts) {
-        setAlerts(JSON.parse(savedAlerts));
-      }
+      const loadAlerts = () => {
+        const savedAlerts = localStorage.getItem('admin_alerts');
+        if (savedAlerts) {
+          setAlerts(JSON.parse(savedAlerts));
+        }
+      };
+
+      loadAlerts(); // Initial load
+
+      // Listen for storage changes from other tabs/windows
+      window.addEventListener('storage', loadAlerts);
+
+      // Clean up the listener when the component unmounts
+      return () => {
+        window.removeEventListener('storage', loadAlerts);
+      };
     }
   }, [isAuthenticated]);
 
@@ -37,19 +49,24 @@ export default function AdminPage() {
     setAlerts(updated);
     localStorage.setItem('admin_alerts', JSON.stringify(updated));
   };
+  
+  const clearAllAlerts = () => {
+    setAlerts([]);
+    localStorage.removeItem('admin_alerts');
+  };
 
   // 🛑 SCENE 1: THE LOCK SCREEN (Visible to everyone else)
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
-        <div className="bg-gray-900 border border-gray-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center">
+        <div className="bg-gray-900 border border-gray-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center backdrop-blur-sm bg-opacity-70">
           <div className="flex justify-center mb-6">
             <div className="bg-red-900/30 p-4 rounded-full border border-red-500/50">
               <Lock size={48} className="text-red-500" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2 tracking-widest">RESTRICTED AREA</h1>
-          <p className="text-gray-400 mb-8">Authorized Personnel Only. <br/> All attempts are logged.</p>
+          <p className="text-gray-400 mb-8">Authorized Personnel Only. <br/> Enter PIN to access the Security Control Panel.</p>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <input 
@@ -75,82 +92,69 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-950 text-gray-100 font-mono">
       
       {/* Top Stats Bar */}
-      <header className="bg-black border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-50">
+      <header className="bg-black/50 backdrop-blur-sm border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <Shield className="text-blue-500" />
-          <h1 className="text-xl font-bold tracking-tight">ADMIN COMMAND CENTER</h1>
+          <h1 className="text-xl font-bold tracking-tight">🛡️ Campus Security Control</h1>
         </div>
-        <div className="flex gap-4 text-sm">
+        <div className="flex gap-4 text-sm items-center">
           <span className="flex items-center gap-2 text-green-400"><Activity size={16}/> System Online</span>
           <span className="flex items-center gap-2 text-red-400"><AlertTriangle size={16}/> Active Threats: {alerts.length}</span>
+          <button onClick={clearAllAlerts} className="flex items-center gap-2 text-gray-500 hover:text-red-400 transition-colors">
+            <ShieldX size={16}/> Clear All
+          </button>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 min-h-[calc(100vh-64px)]">
-        
-        {/* LEFT: LIVE MAP (Simulation) */}
-        <div className="lg:col-span-2 relative bg-gray-900 border-r border-gray-800 overflow-hidden">
-          {/* Map Background */}
-          <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/e/e6/NIT_Agartala_Admin_Block.jpg" 
-            className="absolute inset-0 w-full h-full object-cover opacity-20 grayscale"
-            alt="Campus Map"
-            data-ai-hint="university campus admin building"
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-             <p className="text-gray-500 text-sm">[ LIVE SATELLITE FEED CONNECTED ]</p>
-          </div>
-          
-          {/* Render Red Dots for Active Alerts */}
-          {alerts.map((alert) => (
-             <div key={alert.id} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-ping">
-                <div className="w-32 h-32 bg-red-500/20 rounded-full flex items-center justify-center border border-red-500">
-                </div>
-             </div>
-          ))}
+      <main className="p-4 md:p-8">
+        <div className="bg-black/30 border border-gray-800 rounded-xl shadow-2xl overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-black/50 border-b border-gray-800">
+              <tr>
+                <th className="p-4 text-sm font-medium uppercase tracking-wider">Status</th>
+                <th className="p-4 text-sm font-medium uppercase tracking-wider">Time</th>
+                <th className="p-4 text-sm font-medium uppercase tracking-wider">Alert</th>
+                <th className="p-4 text-sm font-medium uppercase tracking-wider">Location</th>
+                <th className="p-4 text-sm font-medium uppercase tracking-wider">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {alerts.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-12 text-gray-500">
+                    <CheckCircle size={48} className="mx-auto mb-4 text-green-500"/>
+                    No Active Emergencies. System is Clear.
+                  </td>
+                </tr>
+              ) : (
+                alerts.map((alert) => (
+                  <tr key={alert.id} className="border-b border-gray-800/50 hover:bg-gray-900/50 transition-colors data-[status=Active]:bg-red-950/40" data-status={alert.status}>
+                    <td className="p-4">
+                      <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded font-bold uppercase animate-pulse">
+                        {alert.status || 'Active'}
+                      </span>
+                    </td>
+                    <td className="p-4 text-gray-300">{new Date(alert.id).toLocaleTimeString()}</td>
+                    <td className="p-4 font-medium text-white">{alert.message || "Unknown Incident"}</td>
+                    <td className="p-4 flex items-center gap-2 text-gray-400">
+                      <MapPin size={14} />
+                      {alert.location || "Location Unknown"}
+                    </td>
+                    <td className="p-4">
+                      <button 
+                        onClick={() => resolveAlert(alert.id)}
+                        className="bg-green-800/80 hover:bg-green-700 text-white text-xs py-1 px-3 rounded transition-colors flex items-center justify-center gap-2"
+                      >
+                        <CheckCircle size={16} /> Resolve
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-
-        {/* RIGHT: ALERTS FEED */}
-        <div className="bg-black p-6 overflow-y-auto">
-          <h2 className="text-gray-400 mb-6 uppercase text-sm font-bold tracking-wider border-b border-gray-800 pb-2">
-            Incoming Signals
-          </h2>
-          
-          <div className="space-y-4">
-            {alerts.length === 0 ? (
-              <div className="text-center py-10 opacity-50">
-                <CheckCircle size={48} className="mx-auto mb-4 text-green-500"/>
-                <p>No Active Emergencies</p>
-              </div>
-            ) : (
-              alerts.map((alert) => (
-                <div key={alert.id} className="bg-red-950/20 border border-red-900/50 p-4 rounded-lg animate-in slide-in-from-right relative group">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded font-bold uppercase animate-pulse">
-                      {alert.type || 'EMERGENCY'}
-                    </span>
-                    <span className="text-xs text-gray-500">{new Date(alert.id).toLocaleTimeString()}</span>
-                  </div>
-                  
-                  <h3 className="text-white font-bold text-lg mb-1">{alert.message || "Unknown Incident"}</h3>
-                  <div className="flex items-center gap-2 text-gray-400 text-sm mb-4">
-                    <MapPin size={14} />
-                    {alert.location || "Location Unknown"}
-                  </div>
-
-                  <button 
-                    onClick={() => resolveAlert(alert.id)}
-                    className="w-full bg-green-800/80 hover:bg-green-700 text-white text-sm py-2 rounded transition-colors flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle size={16} /> Mark Resolved
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-      </div>
+      </main>
     </div>
   );
 }

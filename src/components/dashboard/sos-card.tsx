@@ -12,12 +12,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle } from 'lucide-react';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 // Mock user data as per requirements
 const currentUser = {
@@ -55,6 +57,8 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         blockNo: '',
     });
     const { toast } = useToast();
+
+    const sosImage = PlaceHolderImages.find(p => p.id === 'sos-map');
     
     useEffect(() => {
         if (currentUser) {
@@ -101,21 +105,37 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     return (
         <>
             <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
-                <Card className="flex flex-col h-full">
-                    <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                        <p className="text-sm font-medium">SOS EMERGENCY</p>
-                        <AlertTriangle className="h-4 w-4 text-destructive" />
-                    </CardHeader>
-                    <CardContent className="flex-grow flex items-center justify-center p-6">
-                         <div className="text-center">
-                           <p className="text-sm text-muted-foreground">Press the button for immediate assistance.</p>
-                         </div>
-                    </CardContent>
-                    <CardFooter>
+                <Card className="relative flex flex-col h-full overflow-hidden group">
+                    {sosImage && (
+                        <Image
+                            src={sosImage.imageUrl}
+                            alt={sosImage.description}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            data-ai-hint={sosImage.imageHint}
+                        />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-red-900/80 via-red-900/50 to-transparent"></div>
+                    
+                    <CardContent className="relative flex-1 flex flex-col justify-between p-6 text-primary-foreground z-10">
+                        <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary-foreground/20 rounded-full">
+                            <AlertTriangle className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-2xl font-bold font-headline">EMERGENCY SOS</h3>
+                        </div>
+
+                        <div className="space-y-4">
+                        <p className="font-semibold text-lg drop-shadow-md">
+                            Press the button for immediate assistance. Your location will be shared with security.
+                        </p>
                         <DialogTrigger asChild>
-                             <Button variant="destructive" className="w-full">Trigger SOS</Button>
+                            <Button variant="destructive" className="w-full text-lg font-bold">
+                                TRIGGER SOS
+                            </Button>
                         </DialogTrigger>
-                    </CardFooter>
+                        </div>
+                    </CardContent>
                 </Card>
                 <DialogContent className="max-w-4xl w-full h-full sm:h-auto max-h-[90vh] flex flex-col p-0">
                     <DialogHeader className="p-6 pb-2">

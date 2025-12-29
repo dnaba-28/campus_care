@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Hospital } from 'lucide-react';
+import { Hospital, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -9,35 +9,38 @@ export default function HospitalCard() {
   const hospitalImage = PlaceHolderImages.find(img => img.id === 'hospital-building');
 
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Campus Hospital</CardTitle>
-        <Hospital className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent className="flex-grow p-0">
-        {hospitalImage && (
-           <div className="relative w-full h-40">
-              <Image
-                  src={hospitalImage.imageUrl}
-                  alt={hospitalImage.description}
-                  fill
-                  objectFit="cover"
-                  data-ai-hint={hospitalImage.imageHint}
-              />
-           </div>
-        )}
-        <div className="p-6">
-          <div className="text-2xl font-bold font-headline text-primary">Hospital Status</div>
-          <CardDescription className="text-xs text-muted-foreground">
-            Real-time updates from the health center
-          </CardDescription>
+    <Card className="relative flex flex-col h-full overflow-hidden group">
+       {hospitalImage && (
+        <Image
+          src={hospitalImage.imageUrl}
+          alt={hospitalImage.description}
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          data-ai-hint={hospitalImage.imageHint}
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+      
+      <CardContent className="relative flex-1 flex flex-col justify-between p-6 text-primary-foreground z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary-foreground/20 rounded-full">
+            <Hospital className="w-6 h-6" />
+          </div>
+          <h3 className="text-2xl font-bold font-headline">HOSPITAL</h3>
+        </div>
+
+        <div className="space-y-4">
+          <p className="font-semibold text-lg drop-shadow-md">
+            Check doctor availability, waiting times, and book appointments.
+          </p>
+          <Button asChild variant="secondary" className="w-full bg-primary-foreground text-primary hover:bg-primary-foreground/90">
+            <Link href="/hospital">
+              View Live Status
+              <ArrowRight className="ml-2" />
+            </Link>
+          </Button>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button className="w-full" asChild>
-          <Link href="/hospital">View Details</Link>
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

@@ -1,105 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, Sparkles, Loader2, MessageSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { campusCareChat } from '@/ai/flows/campus-care-chat';
+import { Bot, MessageSquare, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 
-type Action = {
-  label: string;
-  path: string;
-};
-
-type BotMessage = {
-  text: string;
-  isUser: false;
-  isUrgent?: boolean;
-  action?: Action;
-};
-
-type UserMessage = {
-  text: string;
-  isUser: true;
-};
-
-type Message = BotMessage | UserMessage;
-
-type GlobalAIChatbotProps = {
-  onTriggerSos: () => void;
-};
-
-export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const router = useRouter();
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: UserMessage = { text: input, isUser: true };
-    setMessages(prev => [...prev, userMessage]);
-    setIsLoading(true);
-    setInput('');
-
-    try {
-      const response = await campusCareChat({ query: input });
-      const botMessage: BotMessage = {
-        text: response.answer,
-        isUser: false,
-        isUrgent: response.answer.startsWith('🚨 EMERGENCY:'),
-      };
-
-      // Heuristic to add action buttons based on AI response content
-      if (response.answer.toLowerCase().includes('hospital')) {
-        botMessage.action = { label: '🏥 Book a Doctor', path: '/hospital' };
-      } else if (response.answer.toLowerCase().includes('ambulance')) {
-         botMessage.action = { label: '🚑 Open Ambulance Tracker', path: '/hospital?mode=ambulance' };
-      } else if (response.answer.toLowerCase().includes('cafeteria')) {
-        botMessage.action = { label: '🍔 View Menu & Crowds', path: '/cafeteria' };
-      } else if (response.answer.includes('SOS')) {
-        botMessage.action = { label: '🚨 Trigger SOS', path: '#' };
-      }
-      
-      setMessages(prev => [...prev, botMessage]);
-
-    } catch (error) {
-      console.error("AI chat failed:", error);
-      const errorMessage: BotMessage = {
-        text: "I'm having trouble connecting right now. Please try again in a moment.",
-        isUser: false,
-        isUrgent: true,
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleActionClick = (path: string) => {
-    if (path === '#') {
-        onTriggerSos();
-    } else {
-        router.push(path);
-    }
-  };
-
-
+export default function GlobalAIChatbot() {
   return (
-    <Card>
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
@@ -112,87 +20,20 @@ export default function GlobalAIChatbot({ onTriggerSos }: GlobalAIChatbotProps) 
           <Bot className="h-5 w-5 text-muted-foreground" />
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {isChatOpen ? (
-          <>
-            <div ref={chatContainerRef} className="h-48 overflow-y-auto p-3 bg-muted/50 rounded-md space-y-4">
-              {messages.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                  <p className="text-sm">Ask me for help!</p>
-                  <p className="text-xs">e.g., "I have a fever", "Show me the hospital", "Fire in Block B"</p>
-                </div>
-              )}
-              {messages.map((msg, index) => (
-                <div key={index} className={cn('flex flex-col', msg.isUser ? 'items-end' : 'items-start')}>
-                  <div
-                    className={cn(
-                      'max-w-[80%] rounded-lg px-3 py-2 text-sm',
-                      msg.isUser
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-background border',
-                      !msg.isUser && msg.isUrgent ? 'bg-red-50 border-red-200 text-red-900' : ''
-                    )}
-                  >
-                    <ReactMarkdown
-                      className="prose prose-sm"
-                      components={{
-                        p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} />,
-                        ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2" {...props} />,
-                        ul: ({node, ...props}) => <ul className="list-disc list-inside my-2" {...props} />,
-                        strong: ({node, ...props}) => <strong className="font-bold" {...props} />,
-                      }}
-                    >
-                      {msg.text}
-                    </ReactMarkdown>
-                  </div>
-                  {!msg.isUser && msg.action && (
-                    <Button
-                      size="sm"
-                      className="mt-2 text-sm h-auto px-3 py-1"
-                      onClick={() => handleActionClick(msg.action!.path)}
-                    >
-                      {msg.action.label}
-                    </Button>
-                  )}
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex items-start space-x-2">
-                    <Bot className="w-5 h-5 text-primary flex-shrink-0"/>
-                    <div className="bg-background border rounded-lg px-3 py-2 text-sm flex items-center">
-                        <Loader2 className="w-4 h-4 animate-spin mr-2"/>
-                        Thinking...
-                    </div>
-                </div>
-              )}
-            </div>
-            <div className="flex w-full items-center space-x-2">
-              <Input
-                type="text"
-                placeholder="Type a command or emergency..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                disabled={isLoading}
-              />
-              <Button type="submit" size="icon" onClick={handleSend} disabled={isLoading}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center min-h-[268px] text-center gap-4 p-4">
-            <Bot className="w-16 h-16 text-primary/70" />
-            <div className="space-y-1">
-                <h3 className="font-semibold text-lg font-headline">Need Assistance?</h3>
-                <p className="text-muted-foreground text-sm">Click the button below to start a conversation for any health or safety concerns.</p>
-            </div>
-            <Button onClick={() => setIsChatOpen(true)} className="mt-2" size="lg">
-                <MessageSquare className="mr-2" /> Chat with AI
-            </Button>
-          </div>
-        )}
+      <CardContent className="flex-grow flex flex-col items-center justify-center text-center gap-4 p-6">
+        <Bot className="w-16 h-16 text-primary/70" />
+        <div className="space-y-1">
+            <h3 className="font-semibold text-lg font-headline">Need Assistance?</h3>
+            <p className="text-muted-foreground text-sm">Get immediate first-aid advice or ask any health or safety questions.</p>
+        </div>
       </CardContent>
+      <CardFooter>
+        <Button asChild className="w-full">
+            <Link href="/chat">
+                <MessageSquare className="mr-2" /> Start a Conversation
+            </Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

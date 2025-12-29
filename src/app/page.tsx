@@ -21,7 +21,7 @@ export default function Home() {
           </div>
           <div className="grid gap-6">
             <CafeteriaCard />
-            <GlobalAIChatbot onTriggerSos={() => setIsSosModalOpen(true)} />
+            <GlobalAIChatbot />
           </div>
           <div className="grid gap-6">
             <SosAnalyzerCard />

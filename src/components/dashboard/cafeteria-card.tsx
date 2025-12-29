@@ -12,7 +12,7 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
-const CLOUDINARY_CLOUD_NAME = "dkyy0fpoz"; // Replace with your actual cloud name
+const CLOUDINARY_CLOUD_NAME = "dkyy0fpoz"; // <--- REPLACE THIS WITH YOUR CLOUDINARY CLOUD NAME
 const CLOUDINARY_UPLOAD_PRESET = "care_campus"; // The preset you created in Cloudinary
 
 export default function CafeteriaCard() {
@@ -55,22 +55,23 @@ export default function CafeteriaCard() {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Upload failed');
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error.message || 'Upload failed');
       }
 
-      const data = await response.json();
       setUploadedImageUrl(data.secure_url);
       toast({
         title: 'Image Uploaded!',
         description: 'Your photo is ready for submission.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Cloudinary upload error:', error);
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
-        description: 'Could not upload image. Please try again.',
+        description: error.message || 'Could not upload image. Please try again.',
       });
       setImagePreview(null);
     } finally {
@@ -254,3 +255,5 @@ export default function CafeteriaCard() {
     </Card>
   );
 }
+
+    

@@ -18,8 +18,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle } from 'lucide-react';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 // Mock user data as per requirements
 const currentUser = {
@@ -53,7 +51,6 @@ export default function SosCard() {
         blockNo: '',
     });
     const { toast } = useToast();
-    const sosImage = PlaceHolderImages.find(img => img.id === 'sos-map');
     
     useEffect(() => {
         if (currentUser) {
@@ -105,19 +102,8 @@ export default function SosCard() {
                         <p className="text-sm font-medium">SOS EMERGENCY</p>
                         <AlertTriangle className="h-4 w-4 text-destructive" />
                     </CardHeader>
-                    <CardContent className="flex-grow p-0">
-                         {sosImage && (
-                            <div className="relative w-full h-40">
-                                <Image
-                                    src={sosImage.imageUrl}
-                                    alt={sosImage.description}
-                                    fill
-                                    objectFit="cover"
-                                    data-ai-hint={sosImage.imageHint}
-                                />
-                            </div>
-                         )}
-                         <div className="p-6">
+                    <CardContent className="flex-grow flex items-center justify-center p-6">
+                         <div className="text-center">
                            <p className="text-sm text-muted-foreground">Press the button for immediate assistance.</p>
                          </div>
                     </CardContent>

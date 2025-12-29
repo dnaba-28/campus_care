@@ -17,9 +17,9 @@ import { useToast } from '@/hooks/use-toast';
 import { PlusCircle, Search, Upload, Loader2, PackageOpen, AlertTriangle, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-import { useFirestore, fbStorage } from '@/firebase';
+import { useFirebase } from '@/firebase';
 import { addDoc, collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, StorageReference } from 'firebase/storage';
 import { cn } from '@/lib/utils';
 
 const itemSchema = z.object({
@@ -45,7 +45,7 @@ function ReportItemForm({ onFormSubmit, onCancel }: { onFormSubmit: () => void; 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const firestore = useFirestore();
+  const { firestore, storage } = useFirebase();
 
   const { register, handleSubmit, control, watch, setValue, formState: { errors }, reset } = useForm<ItemFormData>({
     resolver: zodResolver(itemSchema),
@@ -68,13 +68,13 @@ function ReportItemForm({ onFormSubmit, onCancel }: { onFormSubmit: () => void; 
 
   const onSubmit = async (data: ItemFormData) => {
     setIsSubmitting(true);
-    if (!firestore || !fbStorage) {
+    if (!firestore || !storage) {
         toast({ variant: 'destructive', title: 'Error', description: 'Database or storage not connected.' });
         setIsSubmitting(false);
         return;
     }
     try {
-      const storageRef = ref(fbStorage, `lost-found/${Date.now()}-${data.image.name}`);
+      const storageRef = ref(storage, `lost-found/${Date.now()}-${data.image.name}`);
       const snapshot = await uploadBytes(storageRef, data.image);
       const imageUrl = await getDownloadURL(snapshot.ref);
 
@@ -201,7 +201,7 @@ export default function LostAndFoundPage() {
     const [items, setItems] = useState<ReportedItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const firestore = useFirestore();
+    const { firestore } = useFirebase();
 
     useEffect(() => {
         if (!firestore) return;

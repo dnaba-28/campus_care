@@ -24,9 +24,8 @@ export function getSdks(firebaseApp: FirebaseApp) {
 }
 
 // The existing setup already initializes firebase correctly, let's use it.
-const { database, storage } = initializeFirebase();
+const { database } = initializeFirebase();
 export const db = database;
-export const fbStorage = storage;
 
 
 export * from './provider';

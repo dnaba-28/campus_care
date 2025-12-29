@@ -6,9 +6,11 @@ import ReactMarkdown from 'react-markdown';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, Sparkles, Loader2 } from 'lucide-react';
+import { Bot, Send, Sparkles, Loader2, Mic, Square, AudioWaveform } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { campusCareChat } from '@/ai/flows/campus-care-chat';
+import { analyzeSosReport } from '@/ai/flows/realtime-sos-analyzer';
+import { useToast } from '@/hooks/use-toast';
 
 type Action = {
   label: string;
@@ -29,6 +31,8 @@ type UserMessage = {
 
 type Message = BotMessage | UserMessage;
 
+type RecordingStatus = 'idle' | 'recording' | 'processing';
+
 // This is a placeholder for the function that will be passed down from the page
 // to allow the chat component to trigger the SOS modal.
 const triggerSos = () => {
@@ -44,8 +48,12 @@ export default function ChatInterface() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [recordingStatus, setRecordingStatus] = useState<RecordingStatus>('idle');
   const router = useRouter();
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -53,16 +61,16 @@ export default function ChatInterface() {
     }
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: UserMessage = { text: input, isUser: true };
-    setMessages(prev => [...prev, userMessage]);
+  const processAndDisplayMessage = async (query: string, isFromAudio = false) => {
     setIsLoading(true);
-    setInput('');
-
+    if(isFromAudio) {
+        setMessages(prev => [...prev, { text: `(Audio Report) "${query}"`, isUser: true }]);
+    } else {
+        setMessages(prev => [...prev, { text: query, isUser: true }]);
+    }
+    
     try {
-      const response = await campusCareChat({ query: input });
+      const response = await campusCareChat({ query: query });
       const botMessage: BotMessage = {
         text: response.answer,
         isUser: false,
@@ -94,6 +102,13 @@ export default function ChatInterface() {
     }
   };
 
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+    const currentInput = input;
+    setInput('');
+    await processAndDisplayMessage(currentInput);
+  };
+
   const handleActionClick = (path: string) => {
     if (path === '#') {
         triggerSos();
@@ -101,6 +116,55 @@ export default function ChatInterface() {
         router.push(path);
     }
   };
+  
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setRecordingStatus('recording');
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+      mediaRecorderRef.current.onstop = handleStopRecording;
+      mediaRecorderRef.current.start();
+    } catch (err) {
+      console.error('Error accessing microphone:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Microphone Error',
+        description: 'Could not access microphone. Please check permissions.',
+      });
+    }
+  };
+
+  const handleStopRecording = () => {
+     mediaRecorderRef.current?.stream.getTracks().forEach(track => track.stop());
+     setRecordingStatus('processing');
+     const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+     const reader = new FileReader();
+     reader.readAsDataURL(audioBlob);
+     reader.onloadend = async () => {
+       const base64Audio = reader.result as string;
+       try {
+         const result = await analyzeSosReport({ audioDataUri: base64Audio });
+         await processAndDisplayMessage(result.analysis, true);
+       } catch (e) {
+         console.error('Analysis failed:', e);
+         setMessages(prev => [...prev, { text: "Sorry, I couldn't understand the audio. Please try again.", isUser: false, isUrgent: true}]);
+       } finally {
+         audioChunksRef.current = [];
+         setRecordingStatus('idle');
+       }
+     };
+  };
+
+  const toggleRecording = () => {
+    if (recordingStatus === 'recording') {
+        mediaRecorderRef.current?.stop();
+    } else {
+        handleStartRecording();
+    }
+  }
 
 
   return (
@@ -112,7 +176,7 @@ export default function ChatInterface() {
               <Sparkles className="text-primary" />
               CARE-AI Assistant
             </CardTitle>
-            <CardDescription>Your campus AI health and safety expert</CardDescription>
+            <CardDescription>Your campus AI expert. You can type or record audio.</CardDescription>
           </div>
           <Bot className="h-6 w-6 text-muted-foreground" />
         </div>
@@ -169,17 +233,26 @@ export default function ChatInterface() {
                 </div>
             </div>
           )}
+          {recordingStatus === 'recording' && (
+              <div className="flex items-center space-x-2 text-destructive">
+                  <AudioWaveform className="w-5 h-5 animate-pulse"/>
+                  <p className="text-sm font-semibold">Recording...</p>
+              </div>
+          )}
         </div>
         <div className="flex w-full items-center space-x-2">
           <Input
             type="text"
-            placeholder="Type a command or emergency..."
+            placeholder="Type a message or use the mic..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            disabled={isLoading}
+            disabled={isLoading || recordingStatus !== 'idle'}
           />
-          <Button type="submit" size="icon" onClick={handleSend} disabled={isLoading}>
+          <Button type="button" size="icon" onClick={toggleRecording} variant={recordingStatus === 'recording' ? 'destructive' : 'outline'} disabled={isLoading}>
+            {recordingStatus === 'recording' ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </Button>
+          <Button type="submit" size="icon" onClick={handleSend} disabled={isLoading || recordingStatus !== 'idle'}>
             <Send className="h-4 w-4" />
           </Button>
         </div>

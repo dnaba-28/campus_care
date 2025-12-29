@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -97,16 +97,19 @@ export default function SosCard() {
     return (
         <>
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogTrigger asChild>
-                    <Card
-                      className="transition-all duration-300 border-destructive border-2 animate-pulse cursor-pointer hover:bg-destructive/10"
-                    >
-                      <div className="flex flex-col items-center justify-center gap-4 p-10 h-full">
-                        <AlertTriangle className="h-16 w-16 text-destructive" />
-                        <p className="text-2xl font-bold font-headline text-center">SOS EMERGENCY</p>
-                      </div>
-                    </Card>
-                </DialogTrigger>
+                <Card className="flex flex-col h-full">
+                    <CardHeader>
+                        <div className="flex flex-col items-center justify-center text-center gap-2">
+                            <AlertTriangle className="h-12 w-12 text-destructive" />
+                            <p className="text-xl font-bold font-headline">SOS EMERGENCY</p>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="flex-grow flex flex-col justify-end">
+                        <DialogTrigger asChild>
+                             <Button variant="destructive" size="lg">Trigger SOS</Button>
+                        </DialogTrigger>
+                    </CardContent>
+                </Card>
                 <DialogContent className="max-w-4xl w-full h-full sm:h-auto max-h-[90vh] flex flex-col p-0">
                     <DialogHeader className="p-6 pb-2">
                         <DialogTitle className="text-2xl font-bold font-headline">Smart SOS System</DialogTitle>

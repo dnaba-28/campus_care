@@ -7,9 +7,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 type Doctor = {
   id: string;
@@ -18,15 +17,19 @@ type Doctor = {
   status: 'Available' | 'On Break' | 'Busy';
 };
 
-export default function LiveStatusCard() {
-  const firestore = useFirestore();
+const mockDoctors: Doctor[] = [
+    { id: '1', name: 'Dr. Anya Sharma', specialty: 'General Physician', status: 'Available' },
+    { id: '2', name: 'Dr. Vikram Roy', specialty: 'Dentist', status: 'On Break' },
+    { id: '3', name: 'Dr. Priya Patel', specialty: 'Cardiologist', status: 'Busy' },
+    { id: '4', name: 'Dr. Rohan Joshi', specialty: 'Orthopedics', status: 'Available' },
+    { id: '5', name: 'Dr. Meera Desai', specialty: 'Pediatrician', status: 'Busy' },
+];
 
-  const doctorsCollection = useMemoFirebase(
-    () => (firestore ? collection(firestore, 'doctors') : null),
-    [firestore]
-  );
-  
-  const { data: doctors, isLoading } = useCollection<Doctor>(doctorsCollection);
+
+export default function LiveStatusCard() {
+  const [doctors, setDoctors] = useState<Doctor[]>(mockDoctors);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const getStatusIndicatorClass = (status: Doctor['status']) => {
     switch (status) {
@@ -94,7 +97,7 @@ export default function LiveStatusCard() {
               </div>
             ))}
             {!isLoading && (!doctors || doctors.length === 0) && (
-                 <div className="text-center p-4 text-muted-foreground">No doctors available. Visit the Admin page to seed data.</div>
+                 <div className="text-center p-4 text-muted-foreground">No doctors available.</div>
             )}
           </div>
         </div>

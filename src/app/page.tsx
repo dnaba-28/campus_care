@@ -24,15 +24,15 @@ export default function Home() {
             style={{objectFit: "cover"}}
             className="z-0"
           />
-          <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent" />
-          <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white">
+          <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/80 via-black/40 to-transparent" />
+          <div className="relative z-20 flex h-full flex-col items-center justify-center text-center text-white">
             <h1 className="text-6xl font-bold">CARE-CAMPUS</h1>
             <p className="mt-2 text-xl text-gray-200">NIT Agartala • Class of '28</p>
           </div>
         </div>
 
         {/* Floating Grid Container */}
-        <div className="relative z-10 mx-auto -mt-32 w-full max-w-6xl px-4">
+        <div className="relative z-30 mx-auto -mt-32 w-full max-w-6xl px-4">
           <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-2">
             <SosCard isModalOpen={isSosModalOpen} onOpenChange={setIsSosModalOpen} />
             <CafeteriaCard />

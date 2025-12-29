@@ -172,7 +172,7 @@ function ReportItemForm({ onFormSubmit }: { onFormSubmit: () => void }) {
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {isSubmitting ? `Submitting...` : `Post Item`}
+        {isSubmitting ? `Submitting...` : `Submit Report`}
       </Button>
     </form>
   );

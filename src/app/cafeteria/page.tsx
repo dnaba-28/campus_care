@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from '@/components/layout/navbar';
-import FeedbackCard from '@/components/cafeteria/feedback-card';
+import MessHubCard from '@/components/cafeteria/mess-hub-card';
 
 export default function CafeteriaPage() {
   return (
@@ -9,7 +9,7 @@ export default function CafeteriaPage() {
       <Navbar />
       <main className="flex-1 p-4 md:p-8">
         <div className="mx-auto grid w-full max-w-2xl items-start gap-6">
-          <FeedbackCard />
+          <MessHubCard />
         </div>
       </main>
     </div>

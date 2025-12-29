@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Calendar } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function BookAppointmentCard() {
   const [appointmentConfirmed, setAppointmentConfirmed] = useState(false);
+  const [reason, setReason] = useState('');
   const { toast } = useToast();
 
   const handleBooking = (e: React.FormEvent) => {
@@ -46,7 +48,7 @@ export default function BookAppointmentCard() {
           </div>
           <div className="space-y-1">
             <Label htmlFor="reason">Reason for Visit</Label>
-            <Select>
+            <Select onValueChange={setReason} value={reason}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a reason" />
               </SelectTrigger>
@@ -58,6 +60,12 @@ export default function BookAppointmentCard() {
               </SelectContent>
             </Select>
           </div>
+          {reason === 'other' && (
+            <div className="space-y-1">
+              <Label htmlFor="other-reason">Please specify your problem</Label>
+              <Textarea id="other-reason" placeholder="Describe your symptoms or issue" />
+            </div>
+          )}
           <Button type="submit" className="w-full mt-2" style={{ backgroundColor: '#007bff' }}>
             Book Slot
           </Button>

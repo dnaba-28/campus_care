@@ -39,6 +39,12 @@ const nextConfig: NextConfig = {
         hostname: 'images.collegedunia.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

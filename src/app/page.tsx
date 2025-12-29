@@ -18,7 +18,7 @@ export default function Home() {
         {/* Hero Section */}
         <div className="relative h-[500px] w-full">
           <Image
-            src="https://images.collegedunia.com/public/college_data/images/appImage/1503896434cover.jpg"
+            src="https://storage.googleapis.com/project-magnolia-2f3b4.appspot.com/1/G3p22jQhKj4qR7K2.png"
             alt="NIT Agartala Campus"
             fill
             style={{objectFit: "cover"}}

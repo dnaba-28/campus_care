@@ -1,61 +1,36 @@
 {
   "entities": {
     "Doctor": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Doctor",
-      "type": "object",
       "description": "Represents a doctor in the campus hospital.",
+      "type": "object",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Doctor entity."
-        },
         "name": {
           "type": "string",
           "description": "The name of the doctor."
         },
+        "specialty": {
+          "type": "string",
+          "description": "The doctor's medical specialty."
+        },
         "status": {
           "type": "string",
-          "description": "The current status of the doctor (e.g., Available, Busy)."
-        },
-        "queue": {
-          "type": "number",
-          "description": "The number of patients currently in the doctor's queue."
+          "description": "The current status of the doctor (e.g., Available, On Break, Busy).",
+          "enum": ["Available", "On Break", "Busy"]
         }
       },
-      "required": [
-        "id",
-        "name",
-        "status",
-        "queue"
-      ]
+      "required": ["name", "specialty", "status"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["anonymous"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/doctors/{doctorId}",
-        "definition": {
-          "entityName": "Doctor",
-          "schema": {
-            "$ref": "#/backend/entities/Doctor"
-          },
-          "description": "Stores information about each doctor, including their ID, name, status, and queue. The 'doctorId' is a unique identifier for each doctor.",
-          "params": [
-            {
-              "name": "doctorId",
-              "description": "Unique identifier for the doctor document."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure is designed to store and manage doctor information for the 'CareCampus' application. The core entity is 'Doctor,' with attributes like 'id,' 'name,' 'status,' and 'queue.' Given the application's real-time data update requirement and the need for an admin-controlled 'toggle-status' feature, a simple collection-based approach is most suitable. There is no user authentication, which makes authorization simpler.\n\n**Authorization Independence:**\nSince there is no user authentication, every action is treated as an administrator action. No denormalization is needed as there are no user roles. If there were a need to introduce user authentication, the `Doctor` document could include a `members` map to specify which users have administrative access. This map would then be used in security rules to control access.\n\n**QAPs (Rules are not Filters):**\nGiven the lack of user authentication and the need to control doctor status updates via an admin panel, secure `list` operations are less of a concern. All users can view the data. If user authentication were to be added, the structure would support secure list operations through role-based filtering (using the aforementioned `members` map in security rules). The structure inherently supports the application's requirements without exposing unnecessary complexity."
+    "/doctors/{doctorId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Doctor"
+      },
+      "description": "Stores real-time information about each doctor, including their availability status and specialty."
+    }
   }
 }

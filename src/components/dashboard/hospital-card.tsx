@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,22 +20,22 @@ export default function HospitalCard() {
           data-ai-hint={hospitalImage.imageHint}
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-      <CardContent className="relative z-10 flex flex-col justify-end h-full p-6 text-white">
-        <div className="space-y-4">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/20"></div>
+      <CardContent className="relative z-10 flex flex-col justify-between h-full p-6 text-white">
+        <div className="space-y-2">
             <div className="flex items-center gap-4">
-              <Hospital className="w-8 h-8 text-primary" />
-              <h2 className="text-2xl font-bold font-headline">Hospital Dashboard</h2>
+              <Hospital className="w-8 h-8" />
+              <h2 className="text-2xl font-bold font-headline">HOSPITAL</h2>
             </div>
             <p className="text-white/90">
-              Check doctor availability, current wait times, and book appointments instantly.
+              Check doctor availability, waiting times, and book appointments.
             </p>
-            <Button asChild className="w-full bg-white/20 border-white/30 backdrop-blur-sm hover:bg-white/30">
-              <Link href="/hospital">
-                View Live Status <ArrowRight className="ml-2" />
-              </Link>
-            </Button>
         </div>
+        <Button asChild variant="ghost" className="w-full justify-start p-0 h-auto hover:bg-transparent text-white/80 hover:text-white">
+            <Link href="/hospital">
+                View Live Status <ArrowRight className="ml-2" />
+            </Link>
+        </Button>
       </CardContent>
     </Card>
   );

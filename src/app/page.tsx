@@ -6,40 +6,19 @@ import HospitalCard from '@/components/dashboard/hospital-card';
 import CafeteriaCard from '@/components/dashboard/cafeteria-card';
 import GlobalAIChatbot from '@/components/dashboard/global-ai-chatbot';
 import { useState } from 'react';
-import Image from 'next/image';
 
 export default function Home() {
   const [isSosModalOpen, setIsSosModalOpen] = useState(false);
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-50">
+    <div className="flex min-h-screen w-full flex-col bg-slate-50">
       <Navbar />
-      <main className="flex-1">
-        {/* Hero Section */}
-        <div className="relative h-[500px] w-full">
-          <Image
-            src="https://images.collegedunia.com/public/college_data/images/appImage/1503896434cover.jpg"
-            alt="NIT Agartala Campus"
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
-            <h1 className="text-6xl font-extrabold font-headline tracking-tighter">CARE-CAMPUS</h1>
-            <p className="mt-2 text-xl text-gray-300">NIT Agartala • Student Safety Hub</p>
-          </div>
-        </div>
-
-        {/* Floating Grid */}
-        <div className="relative z-10 mx-auto -mt-32 w-full max-w-6xl p-4 md:p-0">
+      <main className="flex-1 p-4 md:p-8">
+        <div className="mx-auto w-full max-w-6xl">
           <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-2">
-            <div className="grid gap-6">
               <SosCard isModalOpen={isSosModalOpen} onOpenChange={setIsSosModalOpen} />
-              <HospitalCard />
-            </div>
-            <div className="grid gap-6">
               <CafeteriaCard />
+              <HospitalCard />
               <GlobalAIChatbot />
-            </div>
           </div>
         </div>
       </main>

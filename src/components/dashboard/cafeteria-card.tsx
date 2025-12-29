@@ -27,7 +27,7 @@ export default function CafeteriaCard() {
         </ul>
       </CardContent>
       <CardFooter>
-        <Button variant="outline" className="w-full">Leave a Review</Button>
+        <Button className="w-full">Leave a Review</Button>
       </CardFooter>
     </Card>
   );

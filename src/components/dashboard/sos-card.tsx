@@ -21,16 +21,6 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle, ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-// Mock user data as per requirements
-const currentUser = {
-  name: 'John Doe',
-  enrollmentNo: '12345XYZ',
-  hostelName: 'Starlight Hall',
-  roomNo: '205',
-  blockNo: 'B',
-};
-// To test the empty form state, set currentUser to null:
-// const currentUser = null;
 
 type EmergencyType = 'FIRE' | 'HEALTH' | 'SAFETY' | 'ACCIDENT' | null;
 
@@ -60,10 +50,11 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     const sosImage = PlaceHolderImages.find(p => p.id === 'sos-map');
     
     useEffect(() => {
-        if (currentUser) {
-            setUserDetails(currentUser);
+        const savedProfile = localStorage.getItem('student_profile');
+        if (savedProfile) {
+            setUserDetails(JSON.parse(savedProfile));
         }
-    }, []);
+    }, [isModalOpen]);
 
     const handleCategoryClick = (emergencyType: EmergencyType) => {
         setSelectedEmergency(emergencyType);
@@ -79,11 +70,12 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                     title: "Missing Information",
                     description: "Please fill out all your details before sending an SOS.",
                 });
+                onOpenChange?.(true); // Re-open the modal if it was closed
                 return; // Stop the function
             }
         }
-
-        // Get location
+        
+        // Use geolocation
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const location = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
@@ -97,25 +89,39 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     };
 
     const saveAlert = (location: string) => {
-        const timestamp = new Date();
-        // 2. Create the payload
-        const newAlert = {
-            id: timestamp.getTime(),
-            type: selectedEmergency,
-            message: `Emergency at ${userDetails.hostelName}`,
-            location: location,
-            time: timestamp.toISOString(),
-            status: 'Active',
-            user: userDetails
-        };
+        const profileData = localStorage.getItem('student_profile');
+        let senderName = "Unknown Device";
+        let senderID = `DEV-${Math.floor(Math.random() * 9999)}`; // Default Random ID
 
-        // 3. Save to localStorage for the admin panel
+        if (profileData) {
+            try {
+                const user = JSON.parse(profileData);
+                senderName = user.name || "Student";
+                senderID = user.enrollment || senderID;
+            } catch(e) {
+                console.error("Failed to parse student profile", e)
+            }
+        }
+
+        const timestamp = new Date();
+        const newAlert = {
+          id: timestamp.getTime(),
+          type: selectedEmergency,
+          message: `Emergency reported by ${senderName}`,
+          senderID: senderID,
+          senderName: senderName,
+          location: location,
+          time: timestamp.toISOString(),
+          status: 'Active',
+          user: userDetails
+        };
+        
         const existingAlerts = JSON.parse(localStorage.getItem('admin_alerts') || '[]');
-        const updatedAlerts = [...existingAlerts, newAlert];
+        const updatedAlerts = [newAlert, ...existingAlerts];
         localStorage.setItem('admin_alerts', JSON.stringify(updatedAlerts));
 
 
-        // 4. Close the confirmation and show success feedback
+        // Close the confirmation and show success feedback
         setShowConfirmation(false);
         toast({
             title: (
@@ -124,10 +130,10 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                     <span className="font-bold">SOS Sent! Admin Notified.</span>
                 </div>
             ),
-            description: `Your ${selectedEmergency} alert has been sent. The admin team is notified.`,
+            description: `Your ${selectedEmergency} alert has been sent. ID: ${senderID} tracked.`,
         });
 
-        // 5. Close the main SOS modal after a delay
+        // Close the main SOS modal after a delay
         setTimeout(() => {
             onOpenChange?.(false);
             setSelectedEmergency(null); // Reset for next time
@@ -248,4 +254,3 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         </>
     );
 }
- 

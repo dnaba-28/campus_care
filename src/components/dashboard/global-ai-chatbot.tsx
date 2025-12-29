@@ -1,39 +1,33 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bot, MessageSquare, Sparkles } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function GlobalAIChatbot() {
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Sparkles className="text-primary" />
-              CARE-AI
-            </CardTitle>
-            <CardDescription>Your campus AI health assistant</CardDescription>
+    <Card className="relative flex flex-col h-full overflow-hidden">
+      <CardContent className="flex-1 flex flex-col justify-between p-6 bg-gradient-to-br from-primary/90 to-primary text-primary-foreground">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary-foreground/20 rounded-full">
+            <Sparkles className="w-6 h-6" />
           </div>
-          <Bot className="h-5 w-5 text-muted-foreground" />
+          <h3 className="text-2xl font-bold font-headline">CARE-AI</h3>
         </div>
-      </CardHeader>
-      <CardContent className="flex-grow flex flex-col items-center justify-center text-center gap-4 p-6">
-        <Bot className="w-16 h-16 text-primary/70" />
-        <div className="space-y-1">
-            <h3 className="font-semibold text-lg font-headline">Need Assistance?</h3>
-            <p className="text-muted-foreground text-sm">Get immediate first-aid advice or ask any health or safety questions.</p>
+
+        <div className="space-y-4">
+          <p className="font-semibold text-lg">
+            Need immediate first-aid advice or have a safety question?
+          </p>
+          <Button asChild variant="secondary" className="w-full bg-primary-foreground text-primary hover:bg-primary-foreground/90">
+            <Link href="/chat">
+              Start a Conversation
+              <ArrowRight className="ml-2" />
+            </Link>
+          </Button>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button asChild className="w-full">
-            <Link href="/chat">
-                <MessageSquare className="mr-2" /> Start a Conversation
-            </Link>
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

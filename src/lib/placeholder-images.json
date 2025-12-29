@@ -13,10 +13,16 @@
       "imageHint": "hospital building"
     },
     {
-      "id": "campus-view",
-      "description": "An aerial view of a university campus.",
-      "imageUrl": "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx1bml2ZXJzaXR5JTIwY2FtcHVzfGVufDB8fHx8MTc2NjkxNzgwNnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "university campus"
+      "id": "sos-map",
+      "description": "An icon of an SOS signal over a map.",
+      "imageUrl": "https://res.cloudinary.com/diw7x4ii3/image/upload/v1718873832/sos-map_bopylk.png",
+      "imageHint": "sos map"
+    },
+    {
+      "id": "ai-assistant",
+      "description": "Abstract representation of an AI assistant.",
+      "imageUrl": "https://images.unsplash.com/photo-1677756119517-756a188d2d94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGFpJTIwYXNzaXN0YW50fGVufDB8fHx8MTc2OTA3ODAzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ai assistant"
     }
   ]
 }

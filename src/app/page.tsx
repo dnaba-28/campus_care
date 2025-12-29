@@ -7,6 +7,7 @@ import CafeteriaCard from '@/components/dashboard/cafeteria-card';
 import GlobalAIChatbot from '@/components/dashboard/global-ai-chatbot';
 import { useState } from 'react';
 import Image from 'next/image';
+import LostAndFoundCard from '@/components/dashboard/lost-and-found-card';
 
 export default function Home() {
   const [isSosModalOpen, setIsSosModalOpen] = useState(false);
@@ -14,7 +15,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Navbar />
-      <main className="flex-1 bg-gray-100">
+      <main className="flex-1 bg-gray-100 pb-12">
         {/* Hero Section */}
         <div className="relative h-[500px] w-full">
           <Image
@@ -34,11 +35,12 @@ export default function Home() {
         {/* Floating Grid Container */}
         <div className="relative z-10 -mt-32">
           <div className="mx-auto w-full max-w-6xl px-4">
-             <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-2">
+             <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
               <SosCard isModalOpen={isSosModalOpen} onOpenChange={setIsSosModalOpen} />
-              <CafeteriaCard />
               <HospitalCard />
+              <CafeteriaCard />
               <GlobalAIChatbot />
+              <LostAndFoundCard />
             </div>
           </div>
         </div>

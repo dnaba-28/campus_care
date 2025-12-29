@@ -12,8 +12,8 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
-const CLOUDINARY_CLOUD_NAME = "dkyy0fpoz"; // <--- REPLACE THIS WITH YOUR CLOUDINARY CLOUD NAME
-const CLOUDINARY_UPLOAD_PRESET = "care_campus"; // The preset you created in Cloudinary
+const CLOUDINARY_CLOUD_NAME = "dkyy0fpoz"; // <--- IMPORTANT: REPLACE WITH YOUR CLOUDINARY CLOUD NAME
+const CLOUDINARY_UPLOAD_PRESET = "care_campus"; // <--- IMPORTANT: This must be an "Unsigned" preset
 
 export default function CafeteriaCard() {
   const [view, setView] = useState<'initial' | 'form'>('initial');
@@ -58,7 +58,7 @@ export default function CafeteriaCard() {
       const data = await response.json();
       
       if (data.error) {
-        throw new Error(data.error.message || 'Upload failed');
+        throw new Error(data.error.message || 'Upload failed. Check Cloudinary settings.');
       }
 
       setUploadedImageUrl(data.secure_url);
@@ -71,7 +71,7 @@ export default function CafeteriaCard() {
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
-        description: error.message || 'Could not upload image. Please try again.',
+        description: `Could not upload image. Please ensure your Cloudinary Cloud Name and Upload Preset ('${CLOUDINARY_UPLOAD_PRESET}') are correct.`,
       });
       setImagePreview(null);
     } finally {
@@ -132,7 +132,7 @@ export default function CafeteriaCard() {
                 <Image
                     src={cafeteriaImage.imageUrl}
                     alt={cafeteriaImage.description}
-                    layout="fill"
+                    fill
                     objectFit="cover"
                     data-ai-hint={cafeteriaImage.imageHint}
                 />
@@ -167,7 +167,7 @@ export default function CafeteriaCard() {
               <Image
                 src={imagePreview}
                 alt="Food preview"
-                layout="fill"
+                fill
                 objectFit="cover"
                 className="rounded-md"
               />

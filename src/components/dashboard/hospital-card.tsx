@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Hospital, Clock } from 'lucide-react';
+import Link from 'next/link';
 
 export default function HospitalCard() {
   return (
@@ -27,7 +28,9 @@ export default function HospitalCard() {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">View Details</Button>
+        <Button className="w-full" asChild>
+          <Link href="/hospital">View Details</Link>
+        </Button>
       </CardFooter>
     </Card>
   );

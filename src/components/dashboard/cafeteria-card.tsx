@@ -45,35 +45,27 @@ export default function CafeteriaCard() {
   const uploadToCloudinary = async (file: File) => {
     setIsUploading(true);
     setUploadedImageUrl(null);
+  
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    
+    formData.append('upload_preset', 'care_campus'); // Hardcoded
+  
     try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      // Hardcoded URL using my cloud name 'diw7x4ii3'
+      const response = await fetch('https://api.cloudinary.com/v1_1/diw7x4ii3/image/upload', {
         method: 'POST',
         body: formData,
       });
-
+  
       const data = await response.json();
+      if (data.error) throw new Error(data.error.message);
       
-      if (data.error) {
-        throw new Error(data.error.message || 'Upload failed. Check Cloudinary settings.');
-      }
-
       setUploadedImageUrl(data.secure_url);
-      toast({
-        title: 'Image Uploaded!',
-        description: 'Your photo is ready for submission.',
-      });
+      toast({ title: "Success", description: "Image uploaded!" });
+  
     } catch (error: any) {
-      console.error('Cloudinary upload error:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Upload Failed',
-        description: `Could not upload image. Cloudinary says: "${error.message}". Please ensure your Cloud Name and Upload Preset are correct and that the preset is set to 'Unsigned'.`,
-      });
-      setImagePreview(null);
+      console.error(error);
+      toast({ variant: "destructive", title: "Error", description: error.message });
     } finally {
       setIsUploading(false);
     }

@@ -12,7 +12,7 @@ export default function Home() {
   const [isSosModalOpen, setIsSosModalOpen] = useState(false);
   
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-100">
+    <div className="flex min-h-screen w-full flex-col">
       <Navbar />
       <main className="flex-1">
         {/* Hero Section */}
@@ -31,12 +31,14 @@ export default function Home() {
         </div>
 
         {/* Floating Grid Container */}
-        <div className="relative z-20 mx-auto -mt-32 w-full max-w-6xl px-4">
-          <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-2">
-            <SosCard isModalOpen={isSosModalOpen} onOpenChange={setIsSosModalOpen} />
-            <CafeteriaCard />
-            <HospitalCard />
-            <GlobalAIChatbot />
+        <div className="relative z-20 -mt-32 bg-gray-100 pt-16 pb-16">
+          <div className="mx-auto w-full max-w-6xl px-4">
+            <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-2">
+              <SosCard isModalOpen={isSosModalOpen} onOpenChange={setIsSosModalOpen} />
+              <CafeteriaCard />
+              <HospitalCard />
+              <GlobalAIChatbot />
+            </div>
           </div>
         </div>
       </main>

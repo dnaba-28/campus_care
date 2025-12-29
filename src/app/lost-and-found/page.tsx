@@ -17,8 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PlusCircle, Search, Upload, Loader2, PackageOpen, AlertTriangle, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-import { useFirestore } from '@/firebase';
-import { fbStorage } from '@/firebase';
+import { useFirestore, fbStorage } from '@/firebase';
 import { addDoc, collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { cn } from '@/lib/utils';
@@ -69,8 +68,8 @@ function ReportItemForm({ onFormSubmit, onCancel }: { onFormSubmit: () => void; 
 
   const onSubmit = async (data: ItemFormData) => {
     setIsSubmitting(true);
-    if (!firestore) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Database not connected.' });
+    if (!firestore || !fbStorage) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Database or storage not connected.' });
         setIsSubmitting(false);
         return;
     }
@@ -288,5 +287,3 @@ export default function LostAndFoundPage() {
     </div>
   );
 }
-
-    

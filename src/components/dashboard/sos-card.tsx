@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -101,25 +101,22 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     return (
         <>
             <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
-                <Card className="flex flex-col h-full bg-white/90 backdrop-blur-md shadow-2xl border border-white/50 rounded-2xl">
-                    <CardContent className="flex-1 flex flex-col justify-between p-6 z-10">
-                        <div className="flex items-center gap-3">
-                        <div className="p-2 bg-red-500/10 text-red-500 rounded-full">
-                            <AlertTriangle className="w-6 h-6" />
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center gap-4">
+                            <AlertTriangle className="w-8 h-8 text-destructive" />
+                            <CardTitle className="text-2xl font-bold font-headline">Emergency SOS</CardTitle>
                         </div>
-                        <h3 className="text-2xl font-bold font-headline text-slate-800">EMERGENCY SOS</h3>
-                        </div>
-
-                        <div className="space-y-4 mt-4">
-                        <p className="font-semibold text-lg text-slate-600">
-                            Press for immediate assistance. Your location will be shared with security.
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground mb-4">
+                            Press for immediate assistance. Your location and details will be shared with campus security.
                         </p>
                         <DialogTrigger asChild>
                             <Button variant="destructive" className="w-full text-lg font-bold">
                                 TRIGGER SOS
                             </Button>
                         </DialogTrigger>
-                        </div>
                     </CardContent>
                 </Card>
                 <DialogContent className="max-w-4xl w-full h-full sm:h-auto max-h-[90vh] flex flex-col p-0">

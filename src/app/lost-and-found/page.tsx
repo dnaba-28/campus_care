@@ -24,7 +24,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { fbStorage } from '@/firebase';
 import { addDoc, collection, query, where, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -112,7 +112,7 @@ function ReportItemForm({ onFormSubmit }: { onFormSubmit: () => void }) {
       >
         {imagePreview ? (
           <div className="relative w-full h-48">
-            <Image src={imagePreview} alt="Item preview" layout="fill" objectFit="cover" className="rounded-md" />
+            <Image src={imagePreview} alt="Item preview" fill objectFit="cover" className="rounded-md" />
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 text-muted-foreground py-6">
@@ -168,11 +168,15 @@ function ReportItemForm({ onFormSubmit }: { onFormSubmit: () => void }) {
 
 function ItemList({ category }: { category: 'lost' | 'found' }) {
   const firestore = useFirestore();
-  const itemsQuery = query(
-    collection(firestore, 'lost-and-found'),
-    where('category', '==', category),
-    orderBy('timestamp', 'desc')
-  );
+  const itemsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(
+      collection(firestore, 'lost-and-found'),
+      where('category', '==', category),
+      orderBy('timestamp', 'desc')
+    );
+  }, [firestore, category]);
+
   const { data: items, isLoading, error } = useCollection(itemsQuery);
   
   if (isLoading) {
@@ -194,7 +198,7 @@ function ItemList({ category }: { category: 'lost' | 'found' }) {
           <CardContent className="p-0">
             <div className="grid grid-cols-1 md:grid-cols-3">
               <div className="relative col-span-1 h-48 md:h-full">
-                <Image src={item.imageUrl} alt={item.description} layout="fill" objectFit="cover" />
+                <Image src={item.imageUrl} alt={item.description} fill objectFit="cover" />
               </div>
               <div className="col-span-2 p-4">
                 <p className="text-sm text-muted-foreground mt-1">{item.description}</p>

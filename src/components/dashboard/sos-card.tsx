@@ -39,8 +39,12 @@ const emergencyCategories = [
     { type: 'ACCIDENT' as const, label: 'Accident', icon: Car, color: 'bg-gray-700 hover:bg-gray-800', textColor: 'text-gray-700' },
 ];
 
-export default function SosCard() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+type SosCardProps = {
+    isModalOpen?: boolean;
+    onOpenChange?: (isOpen: boolean) => void;
+}
+
+export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedEmergency, setSelectedEmergency] = useState<EmergencyType>(null);
     const [userDetails, setUserDetails] = useState({
@@ -84,7 +88,7 @@ export default function SosCard() {
         });
 
         setTimeout(() => {
-            setIsModalOpen(false);
+            onOpenChange?.(false);
             setSelectedEmergency(null);
         }, 3000);
     };
@@ -96,7 +100,7 @@ export default function SosCard() {
 
     return (
         <>
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
                 <Card className="flex flex-col h-full">
                     <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
                         <p className="text-sm font-medium">SOS EMERGENCY</p>

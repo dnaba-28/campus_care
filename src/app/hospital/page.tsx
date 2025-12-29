@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/navbar';
 import LiveStatusCard from '@/components/hospital/live-status-card';
 import BookAppointmentCard from '@/components/hospital/book-appointment-card';
@@ -13,6 +14,15 @@ export type AmbulanceRequest = {
 
 export default function HospitalPage() {
   const [ambulanceRequest, setAmbulanceRequest] = useState<AmbulanceRequest | null>(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check for the ambulance mode from the URL query on initial load
+    const mode = searchParams.get('mode');
+    if (mode === 'ambulance') {
+      setAmbulanceRequest({ destination: 'Emergency Location' });
+    }
+  }, [searchParams]);
 
   const handleAmbulanceArrived = () => {
     setAmbulanceRequest(null);

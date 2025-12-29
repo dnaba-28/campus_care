@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit2, Check, User, Building, Briefcase, Calendar } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
 
 // Sub-Component for a single Row to keep code clean
 function ProfileRow({ icon, bgColor, value, isEditing, onChange }: any) {
@@ -23,7 +25,7 @@ function ProfileRow({ icon, bgColor, value, isEditing, onChange }: any) {
             className="w-full bg-white/10 text-white text-lg font-bold px-2 py-1 rounded border border-white/30 focus:outline-none focus:border-white"
           />
         ) : (
-          <h3 className="text-white text-lg font-bold tracking-wide">{value}</h3>
+          <h3 className="text-white text-lg font-bold tracking-wide">{value || 'Not set'}</h3>
         )}
       </div>
     </div>
@@ -32,15 +34,32 @@ function ProfileRow({ icon, bgColor, value, isEditing, onChange }: any) {
 
 
 export default function ProfilePage() {
-  // State to hold the student details
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: "Nabanita Debnath",
-    enrollment: "24UME025",
-    hostel: "GARGI HOSTEL",
-    department: "Mechanical",
-    year: "4th Year"
+    name: "",
+    enrollment: "",
+    hostel: "",
+    department: "",
+    year: ""
   });
+  const { toast } = useToast();
+
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('student_profile');
+    if (savedProfile) {
+      setProfile(JSON.parse(savedProfile));
+    }
+  }, []);
+
+  const handleSave = () => {
+    localStorage.setItem('student_profile', JSON.stringify(profile));
+    setIsEditing(false);
+    toast({
+        title: "Profile Saved!",
+        description: "Your details have been updated successfully."
+    });
+  }
 
   return (
     <div className="min-h-screen bg-[#E6DBC9] font-sans pb-10">
@@ -59,7 +78,7 @@ export default function ProfilePage() {
         {/* z-20 and -mb-16 pull it down into the card */}
         <div className="w-32 h-32 bg-[#E27D7A] rounded-full flex items-center justify-center border-[6px] border-[#E6DBC9] z-20 -mb-16 shadow-lg relative">
           <img 
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Nabanita&backgroundColor=E27D7A" 
+            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'default'}&backgroundColor=E27D7A`} 
             alt="Profile Avatar" 
             className="w-24 h-24 rounded-full"
           />
@@ -76,7 +95,7 @@ export default function ProfilePage() {
               bgColor="bg-[#FF4757]" // Red Circle
               value={profile.name}
               isEditing={isEditing}
-              onChange={(e) => setProfile({...profile, name: e.target.value})}
+              onChange={(e:any) => setProfile({...profile, name: e.target.value})}
             />
 
             {/* ROW 2: Enrollment */}
@@ -85,7 +104,7 @@ export default function ProfilePage() {
               bgColor="bg-[#535C68]" // Gray/Blue Circle
               value={profile.enrollment}
               isEditing={isEditing}
-              onChange={(e) => setProfile({...profile, enrollment: e.target.value})}
+              onChange={(e:any) => setProfile({...profile, enrollment: e.target.value})}
             />
 
             {/* ROW 3: Hostel */}
@@ -94,7 +113,7 @@ export default function ProfilePage() {
               bgColor="bg-[#F1C40F]" // Yellow Circle
               value={profile.hostel}
               isEditing={isEditing}
-              onChange={(e) => setProfile({...profile, hostel: e.target.value})}
+              onChange={(e:any) => setProfile({...profile, hostel: e.target.value})}
             />
 
             {/* ROW 4: Department */}
@@ -103,7 +122,7 @@ export default function ProfilePage() {
               bgColor="bg-[#74B9FF]" // Light Blue Circle
               value={profile.department}
               isEditing={isEditing}
-              onChange={(e) => setProfile({...profile, department: e.target.value})}
+              onChange={(e:any) => setProfile({...profile, department: e.target.value})}
             />
 
             {/* ROW 5: Year */}
@@ -112,7 +131,7 @@ export default function ProfilePage() {
               bgColor="bg-white" // White "Calendar" Icon
               value={profile.year}
               isEditing={isEditing}
-              onChange={(e) => setProfile({...profile, year: e.target.value})}
+              onChange={(e:any) => setProfile({...profile, year: e.target.value})}
             />
 
           </div>
@@ -133,7 +152,7 @@ export default function ProfilePage() {
           {/* Save Button */}
           {isEditing && (
              <button 
-                onClick={() => setIsEditing(false)}
+                onClick={handleSave}
                 className="flex-1 bg-[#4cd137] text-white py-4 rounded-full text-lg font-bold shadow-xl flex items-center justify-center gap-2 hover:bg-[#44bd32] transition"
             >
                 Save <Check size={20} />

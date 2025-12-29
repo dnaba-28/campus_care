@@ -1,186 +1,104 @@
-
 'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
+import { User, Building, Briefcase, Calendar, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { ArrowLeft, User, Lock, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { getAuth, onAuthStateChanged, AuthError } from 'firebase/auth';
-import { initiateEmailSignIn, initiateEmailSignUp } from '@/firebase/non-blocking-login';
-
-const formSchema = z.object({
-  email: z.string().email({
-    message: 'Please enter a valid email address.',
-  }),
-  password: z.string().min(6, {
-    message: 'Password must be at least 6 characters.',
-  }),
-});
-
-type UserFormValue = z.infer<typeof formSchema>;
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
-  const auth = getAuth();
-
-  const form = useForm<UserFormValue>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+  
+  // State to hold all 5 inputs
+  const [formData, setFormData] = useState({
+    name: '',
+    enrollment: '',
+    hostel: '',
+    department: '',
+    year: ''
   });
 
-  const handleAuthAction = async (action: 'signIn' | 'signUp', data: UserFormValue) => {
-    setIsLoading(true);
-
-    const authAction = action === 'signIn' 
-      ? initiateEmailSignIn 
-      : initiateEmailSignUp;
-
-    const unsubscribe = onAuthStateChanged(auth, (user, error) => {
-      unsubscribe();
-      setIsLoading(false);
-
-      if (user) {
-        toast({
-          title: `Successfully ${action === 'signIn' ? 'signed in' : 'signed up'}!`,
-          description: `Welcome! Redirecting you now...`,
-        });
-        router.push('/');
-      } else {
-        const authError = error as AuthError | undefined;
-        let errorMessage = 'An unexpected error occurred. Please try again.';
-        if (authError) {
-            switch (authError.code) {
-                case 'auth/user-not-found':
-                case 'auth/wrong-password':
-                case 'auth/invalid-credential':
-                  errorMessage = 'Invalid email or password. Please try again.';
-                  break;
-                case 'auth/email-already-in-use':
-                  errorMessage = 'An account with this email already exists. Please sign in.';
-                  break;
-                case 'auth/invalid-email':
-                    errorMessage = 'Please enter a valid email address.';
-                    break;
-                default:
-                  errorMessage = authError.message;
-                  break;
-            }
-        }
-        toast({
-          variant: 'destructive',
-          title: `Authentication Failed`,
-          description: errorMessage,
-        });
-      }
-    });
-
-    authAction(auth, data.email, data.password);
+  const handleLogin = () => {
+    // 1. SAVE to LocalStorage (The "Hackathon Database")
+    localStorage.setItem('student_profile', JSON.stringify(formData));
+    
+    // 2. Redirect to Profile Page
+    router.push('/profile');
   };
 
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+
   return (
-    <div className="flex min-h-screen flex-col bg-[#E8DCCA]">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between bg-[#5D2E46] px-4 shadow-md">
-        <Link href="/" aria-label="Go back to homepage">
-          <ArrowLeft className="h-6 w-6 text-white" />
-        </Link>
-        <h1 className="text-xl font-bold text-white">Student Login</h1>
-        <div className="w-6"></div> {/* Spacer to balance the title */}
-      </header>
+    <div className="min-h-screen bg-[#E6DBC9] flex flex-col items-center justify-center p-6">
+      
+      {/* Avatar Header */}
+      <div className="w-32 h-32 bg-[#E27D7A] rounded-full flex items-center justify-center border-[6px] border-[#E6DBC9] z-20 -mb-16 shadow-lg">
+         <User size={64} color="white" />
+      </div>
 
-      {/* Main Content */}
-      <main className="flex flex-1 flex-col items-center justify-center pt-16">
-        <div className="relative mb-[-64px] z-10 flex h-32 w-32 items-center justify-center rounded-full bg-[#E07A7A]">
-          <User className="h-20 w-20 text-white" />
+      {/* The Blue Form Card */}
+      <div className="bg-[#0B1E47] w-full max-w-md rounded-[2.5rem] pt-20 pb-10 px-8 shadow-2xl relative z-10">
+        <h2 className="text-white text-center text-xl font-bold mb-6">Student Registration</h2>
+        
+        <div className="space-y-6">
+          {/* 1. Name */}
+          <InputRow 
+            icon={<User size={20} />} color="bg-[#FF4757]" 
+            placeholder="Enter Name" 
+            onChange={(e: any) => handleInputChange('name', e.target.value)}
+          />
+          {/* 2. Enrollment */}
+          <InputRow 
+            icon={<User size={20} />} color="bg-[#535C68]" 
+            placeholder="Enter Enrollment No." 
+            onChange={(e: any) => handleInputChange('enrollment', e.target.value)}
+          />
+          {/* 3. Hostel */}
+          <InputRow 
+            icon={<Building size={20} className="text-black" />} color="bg-[#F1C40F]" 
+            placeholder="Enter Hostel Name" 
+            onChange={(e: any) => handleInputChange('hostel', e.target.value)}
+          />
+          {/* 4. Department */}
+          <InputRow 
+            icon={<Briefcase size={20} />} color="bg-[#74B9FF]" 
+            placeholder="Enter Department" 
+            onChange={(e: any) => handleInputChange('department', e.target.value)}
+          />
+          {/* 5. Year */}
+          <InputRow 
+            icon={<Calendar size={20} className="text-black" />} color="bg-white" 
+            placeholder="Enter Year (e.g. 4th)" 
+            onChange={(e: any) => handleInputChange('year', e.target.value)}
+          />
         </div>
 
-        {/* Login Card */}
-        <div className="w-full max-w-md rounded-3xl bg-[#0F2557] p-8 pt-24 shadow-2xl">
-          <Form {...form}>
-            <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center gap-4 border-b border-white/30 pb-2">
-                      <User className="h-5 w-5 text-white" />
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Email Address"
-                          className="flex-1 border-none bg-transparent text-lg text-white placeholder-white/70 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                          disabled={isLoading}
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage className="pt-2 text-red-400" />
-                  </FormItem>
-                )}
-              />
+        {/* Login Button */}
+        <button 
+          onClick={handleLogin}
+          className="w-full bg-white text-[#0B1E47] mt-8 py-4 rounded-full text-lg font-bold shadow-lg hover:bg-gray-200 transition flex items-center justify-center gap-2"
+        >
+          Save & Login <ArrowRight size={20} />
+        </button>
+      </div>
+    </div>
+  );
+}
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center gap-4 border-b border-white/30 pb-2">
-                      <Lock className="h-5 w-5 text-white" />
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="Password"
-                          className="flex-1 border-none bg-transparent text-lg text-white placeholder-white/70 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                          disabled={isLoading}
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
-                     <FormMessage className="pt-2 text-red-400" />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="mt-8 flex w-full max-w-md justify-center gap-4">
-          <Button
-            onClick={form.handleSubmit((data) => handleAuthAction('signIn', data))}
-            disabled={isLoading}
-            className="rounded-full bg-[#0F2557] px-10 py-6 text-lg text-white shadow-lg hover:bg-opacity-90"
-          >
-            {isLoading ? <Loader2 className="animate-spin" /> : 'Login'}
-          </Button>
-          <Button
-            onClick={form.handleSubmit((data) => handleAuthAction('signUp', data))}
-            disabled={isLoading}
-            className="rounded-full bg-[#0F2557] px-10 py-6 text-lg text-white shadow-lg hover:bg-opacity-90"
-          >
-            {isLoading ? <Loader2 className="animate-spin" /> : 'Register'}
-          </Button>
-        </div>
-      </main>
+// Helper Component for Inputs
+function InputRow({ icon, color, placeholder, onChange }: any) {
+  return (
+    <div className="flex items-center space-x-4">
+      <div className={`w-12 h-12 ${color} rounded-full flex items-center justify-center shrink-0 shadow-md`}>
+        {/* Render icon with white color mostly, unless specified black above */}
+        <span className="text-white">{icon}</span>
+      </div>
+      <input 
+        type="text" 
+        placeholder={placeholder}
+        onChange={onChange}
+        className="flex-1 bg-transparent border-b border-white/20 text-white text-lg placeholder-gray-400 focus:outline-none focus:border-white py-2"
+      />
     </div>
   );
 }

@@ -28,6 +28,19 @@ export default function LiveStatusCard() {
   
   const { data: doctors, isLoading } = useCollection<Doctor>(doctorsCollection);
 
+  const getStatusBadge = (status: Doctor['status']) => {
+    switch (status) {
+      case 'Available':
+        return 'bg-green-100 text-green-800';
+      case 'On Break':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Busy':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-slate-100 text-slate-800';
+    }
+  }
+
   return (
     <Card className="shadow-lg rounded-xl">
       <CardHeader>
@@ -78,11 +91,7 @@ export default function LiveStatusCard() {
                   variant={
                     doctor.status === 'Available' ? 'default' : 'destructive'
                   }
-                  className={
-                    doctor.status === 'Available'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }
+                  className={getStatusBadge(doctor.status)}
                 >
                   {doctor.status}
                 </Badge>

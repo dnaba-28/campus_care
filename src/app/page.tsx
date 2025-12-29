@@ -18,11 +18,12 @@ export default function Home() {
         {/* Hero Section */}
         <div className="relative h-[500px] w-full">
           <Image
-            src="https://storage.googleapis.com/project-magnolia-2f3b4.appspot.com/1/G3p22jQhKj4qR7K2.png"
+            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="NIT Agartala Campus"
             fill
             objectFit="cover"
             className="z-0"
+            data-ai-hint="university campus"
           />
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-t from-gray-900 to-transparent text-center text-white">
             <h1 className="text-6xl font-extrabold">CARE-CAMPUS</h1>

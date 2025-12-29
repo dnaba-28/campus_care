@@ -11,6 +11,7 @@ export default function Navbar() {
     { href: '/', label: 'Home' },
     { href: '/chat', label: 'AI Chat' },
     { href: '/admin', label: 'Admin' },
+    { href: '/profile', label: 'Profile' },
   ];
   const authLinks = [
       { href: '/login', label: 'Login' }

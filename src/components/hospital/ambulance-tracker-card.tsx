@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Phone, Ambulance, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Progress } from '@/components/ui/progress';
+import type { AmbulanceRequest } from '@/app/hospital/page';
 
 type Status = 'idle' | 'dispatched' | 'arrived';
 
@@ -17,22 +17,36 @@ const driver = {
   imageUrl: 'https://picsum.photos/seed/driver/100/100',
 };
 
-export default function AmbulanceTrackerCard() {
+type AmbulanceTrackerCardProps = {
+  request: AmbulanceRequest | null;
+  onAmbulanceArrived: () => void;
+};
+
+export default function AmbulanceTrackerCard({ request, onAmbulanceArrived }: AmbulanceTrackerCardProps) {
   const [status, setStatus] = useState<Status>('idle');
   const [progress, setProgress] = useState(0);
 
+  // Effect to handle incoming requests
+  useEffect(() => {
+    if (request) {
+      setStatus('dispatched');
+    } else {
+      setStatus('idle');
+    }
+  }, [request]);
+
+  // Effect to simulate ETA and arrival
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === 'dispatched') {
-      // Simulate ETA
       timer = setTimeout(() => {
         setStatus('arrived');
-        setProgress(100);
       }, 5000); // 5-second simulation
     }
     return () => clearTimeout(timer);
   }, [status]);
-
+  
+  // Effect to handle progress bar animation
   useEffect(() => {
     let progressTimer: NodeJS.Timeout | undefined;
     if (status === 'dispatched') {
@@ -58,20 +72,18 @@ export default function AmbulanceTrackerCard() {
     return () => clearInterval(progressTimer);
   }, [status]);
 
-  const handleRequestAmbulance = () => {
-    setStatus('dispatched');
-  };
 
   const handleReset = () => {
     setStatus('idle');
+    onAmbulanceArrived();
   };
 
   const getStatusInfo = () => {
     switch (status) {
       case 'dispatched':
-        return { text: 'On the way to Hostel', color: 'bg-red-500 text-white', eta: 'ETA: 5 Minutes' };
+        return { text: `On the way to ${request?.destination}`, color: 'bg-red-500 text-white', eta: 'ETA: 5 Minutes' };
       case 'arrived':
-        return { text: 'Ambulance Arrived!', color: 'bg-blue-500 text-white', eta: 'Reached Destination' };
+        return { text: 'Ambulance Arrived!', color: 'bg-blue-500 text-white', eta: `Reached ${request?.destination}` };
       case 'idle':
       default:
         return { text: 'Parked at Hospital', color: 'bg-green-100 text-green-800', eta: 'Available on Request' };
@@ -79,6 +91,7 @@ export default function AmbulanceTrackerCard() {
   };
 
   const { text, color, eta } = getStatusInfo();
+  const destination = request ? request.destination : "Hostel";
 
   return (
     <Card className="shadow-lg rounded-xl">
@@ -117,9 +130,9 @@ export default function AmbulanceTrackerCard() {
             <Badge className={cn('text-sm', color)}>{text}</Badge>
           </div>
           <div className="space-y-3">
-             <div className="relative h-10 w-full rounded-full bg-slate-200 border">
+             <div className="relative h-10 w-full rounded-full bg-slate-200 border overflow-hidden">
                  <div 
-                    className="absolute top-0 h-full transition-all duration-1000 ease-linear flex items-center"
+                    className="absolute top-0 h-full transition-all duration-500 ease-linear flex items-center"
                     style={{ left: `calc(${progress}% - 20px)`}}
                  >
                     <Ambulance className="w-10 h-10 text-red-600"/>
@@ -127,7 +140,7 @@ export default function AmbulanceTrackerCard() {
              </div>
             <div className="flex justify-between text-xs font-medium text-slate-500">
               <div className="flex items-center gap-1"><MapPin className="w-3 h-3" /> Hospital</div>
-              <div className="flex items-center gap-1">Hostel <MapPin className="w-3 h-3" /></div>
+              <div className="flex items-center gap-1">{destination} <MapPin className="w-3 h-3" /></div>
             </div>
           </div>
           <div className="text-center font-semibold text-primary">{status === 'dispatched' && eta}</div>
@@ -136,8 +149,8 @@ export default function AmbulanceTrackerCard() {
         {/* Action Button */}
         <div className="pt-4 border-t">
           {status === 'idle' ? (
-            <Button onClick={handleRequestAmbulance} className="w-full text-lg" size="lg">
-              <Ambulance className="mr-2" /> Request Ambulance
+            <Button disabled className="w-full text-lg bg-slate-300" size="lg">
+              <Ambulance className="mr-2" /> Request via Form
             </Button>
           ) : (
             <Button onClick={handleReset} variant="outline" className="w-full text-lg" size="lg">

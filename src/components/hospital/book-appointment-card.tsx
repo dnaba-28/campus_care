@@ -12,12 +12,17 @@ import { Calendar, Ticket, Bell, Ambulance } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import type { AmbulanceRequest } from '@/app/hospital/page';
 
 const LIVE_QUEUE_START_OFFSET = 5;
 const NOTIFICATION_THRESHOLD = 2;
 const QUEUE_UPDATE_INTERVAL = 3000; // 3 seconds
 
-export default function BookAppointmentCard() {
+type BookAppointmentCardProps = {
+  onAmbulanceRequest: (request: AmbulanceRequest) => void;
+};
+
+export default function BookAppointmentCard({ onAmbulanceRequest }: BookAppointmentCardProps) {
   const [view, setView] = useState<'form' | 'ticket'>('form');
   const [reason, setReason] = useState('');
   const [userToken, setUserToken] = useState<number | null>(null);
@@ -40,9 +45,15 @@ export default function BookAppointmentCard() {
     setNotificationSent(false);
 
     if (needsAmbulance) {
+      onAmbulanceRequest({ destination: hostelName || 'hostel' });
       toast({
-        title: 'Appointment & Ambulance Confirmed!',
-        description: `Your token is #${newToken} and an ambulance has been dispatched to ${hostelName}.`,
+        title: (
+          <div className="flex items-center gap-2">
+            <Ambulance className="h-5 w-5 text-destructive" />
+            <span className="font-bold">Ambulance Dispatched!</span>
+          </div>
+        ),
+        description: `Your appointment token is #${newToken} and an ambulance is on its way to ${hostelName}.`,
       });
     } else {
       toast({
@@ -57,7 +68,7 @@ export default function BookAppointmentCard() {
         const newServingToken = servingToken + 1;
         setServingToken(newServingToken);
 
-        if (userToken - newServingToken === NOTIFICATION_THRESHOLD && !notificationSent) {
+        if (userToken - newServingToken === NOTIFICATION_THRESHOLD && !notificationSent && !needsAmbulance) {
             toast({
                 title: (
                     <div className="flex items-center gap-2">
@@ -78,6 +89,7 @@ export default function BookAppointmentCard() {
     setServingToken(null);
     setReason('');
     setNeedsAmbulance(false);
+    setHostelName('');
   }
 
   return (
@@ -144,7 +156,7 @@ export default function BookAppointmentCard() {
                  <h4 className="text-md font-semibold text-slate-700">Pickup Location Details</h4>
                  <div className="space-y-1">
                     <Label htmlFor="hostel">Hostel Name</Label>
-                    <Input id="hostel" value={hostelName} onChange={(e) => setHostelName(e.target.value)} placeholder="e.g., Starlight Hall" />
+                    <Input id="hostel" value={hostelName} onChange={(e) => setHostelName(e.target.value)} placeholder="e.g., Starlight Hall" required={needsAmbulance}/>
                  </div>
                  <div className="space-y-1">
                     <Label htmlFor="block">Block Number</Label>

@@ -1,10 +1,23 @@
+'use client';
+
+import { useState } from 'react';
 import Navbar from '@/components/layout/navbar';
 import LiveStatusCard from '@/components/hospital/live-status-card';
 import BookAppointmentCard from '@/components/hospital/book-appointment-card';
 import FeedbackCard from '@/components/hospital/feedback-card';
 import AmbulanceTrackerCard from '@/components/hospital/ambulance-tracker-card';
 
+export type AmbulanceRequest = {
+  destination: string;
+};
+
 export default function HospitalPage() {
+  const [ambulanceRequest, setAmbulanceRequest] = useState<AmbulanceRequest | null>(null);
+
+  const handleAmbulanceArrived = () => {
+    setAmbulanceRequest(null);
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-slate-50">
       <Navbar />
@@ -13,11 +26,14 @@ export default function HospitalPage() {
           <div className="lg:col-span-2">
             <LiveStatusCard />
             <div className="mt-6">
-              <AmbulanceTrackerCard />
+              <AmbulanceTrackerCard
+                request={ambulanceRequest}
+                onAmbulanceArrived={handleAmbulanceArrived}
+              />
             </div>
           </div>
           <div className="grid gap-6">
-            <BookAppointmentCard />
+            <BookAppointmentCard onAmbulanceRequest={setAmbulanceRequest} />
             <FeedbackCard />
           </div>
         </div>

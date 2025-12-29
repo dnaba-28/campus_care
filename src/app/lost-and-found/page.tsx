@@ -14,21 +14,19 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, Search, Camera, Upload, Loader2 } from 'lucide-react';
+import { PlusCircle, Search, Upload, Loader2, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from '@/components/ui/dialog';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { fbStorage } from '@/firebase';
 import { addDoc, collection, query, where, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { cn } from '@/lib/utils';
 
 
 const itemSchema = z.object({
@@ -70,6 +68,11 @@ function ReportItemForm({ onFormSubmit }: { onFormSubmit: () => void }) {
 
   const onSubmit = async (data: ItemFormData) => {
     setIsSubmitting(true);
+    if (!firestore) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Database not connected.' });
+        setIsSubmitting(false);
+        return;
+    }
     try {
       // 1. Upload image to Firebase Storage
       const storageRef = ref(fbStorage, `lost-found/${Date.now()}-${data.image.name}`);
@@ -165,57 +168,16 @@ function ReportItemForm({ onFormSubmit }: { onFormSubmit: () => void }) {
   );
 }
 
-
-function ItemList({ category }: { category: 'lost' | 'found' }) {
-  const firestore = useFirestore();
-  const itemsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(
-      collection(firestore, 'lost-and-found'),
-      where('category', '==', category),
-      orderBy('timestamp', 'desc')
+function ItemListError() {
+    return (
+        <div className="text-center p-8 bg-red-50 border border-red-200 rounded-lg">
+            <AlertTriangle className="mx-auto h-8 w-8 text-red-500 mb-4" />
+            <h3 className="font-semibold text-red-800">Feature Currently Unavailable</h3>
+            <p className="text-sm text-red-700 mt-1">
+                We are experiencing issues fetching the list of items. Please check back later.
+            </p>
+        </div>
     );
-  }, [firestore, category]);
-
-  const { data: items, isLoading, error } = useCollection(itemsQuery);
-  
-  if (isLoading) {
-    return <div className="text-center p-8"><Loader2 className="mx-auto h-8 w-8 animate-spin" /></div>;
-  }
-  
-  if (error) {
-    return <div className="text-center p-8 text-destructive">Error loading items. Please try again.</div>;
-  }
-  
-  if (!items || items.length === 0) {
-    return <div className="text-center p-8 text-muted-foreground">No {category} items reported yet.</div>;
-  }
-
-  return (
-    <div className="grid gap-6">
-      {items.map(item => (
-        <Card key={item.id} className="overflow-hidden">
-          <CardContent className="p-0">
-            <div className="grid grid-cols-1 md:grid-cols-3">
-              <div className="relative col-span-1 h-48 md:h-full">
-                <Image src={item.imageUrl} alt={item.description} fill objectFit="cover" />
-              </div>
-              <div className="col-span-2 p-4">
-                <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-                <div className="text-sm text-muted-foreground mt-4 space-y-1">
-                    <p><strong>Contact:</strong> {item.phone}</p>
-                    <p><strong>Reported:</strong> {new Date(item.timestamp.seconds * 1000).toLocaleString()}</p>
-                </div>
-                 <Button asChild variant="default" className="w-full mt-4">
-                    <a href={`tel:${item.phone}`}>Contact Owner</a>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
 }
 
 
@@ -254,13 +216,14 @@ export default function LostAndFoundPage() {
               <Tabs defaultValue="found">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="found">Found Items</TabsTrigger>
+
                   <TabsTrigger value="lost">Lost Items</TabsTrigger>
                 </TabsList>
                 <TabsContent value="found" className="mt-6">
-                  <ItemList category="found" />
+                  <ItemListError />
                 </TabsContent>
                 <TabsContent value="lost" className="mt-6">
-                  <ItemList category="lost" />
+                  <ItemListError />
                 </TabsContent>
               </Tabs>
             </CardContent>

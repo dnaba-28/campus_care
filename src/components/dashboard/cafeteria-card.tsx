@@ -6,14 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Star, Camera, Upload, Loader2, CheckCircle } from 'lucide-react';
+import { Star, Camera, Upload, Loader2, CheckCircle, Utensils, MessageSquareQuote } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
 
 const CLOUDINARY_CLOUD_NAME = "dkyy0fpoz"; // Replace with your actual cloud name
 const CLOUDINARY_UPLOAD_PRESET = "care_campus"; // The preset you created in Cloudinary
 
 export default function CafeteriaCard() {
+  const [view, setView] = useState<'initial' | 'form'>('initial');
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
@@ -23,18 +26,18 @@ export default function CafeteriaCard() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  
+  const cafeteriaImage = PlaceHolderImages.find(img => img.id === 'cafeteria-food');
+
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Create a preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-
-      // Start the upload
       uploadToCloudinary(file);
     }
   };
@@ -69,7 +72,7 @@ export default function CafeteriaCard() {
         title: 'Upload Failed',
         description: 'Could not upload image. Please try again.',
       });
-      setImagePreview(null); // Clear preview on failure
+      setImagePreview(null);
     } finally {
       setIsUploading(false);
     }
@@ -104,7 +107,7 @@ export default function CafeteriaCard() {
         description: 'Thank you! Admin will review your feedback.',
     });
 
-    // Reset form
+    // Reset form and view
     setRating(0);
     setReviewText('');
     setImagePreview(null);
@@ -112,7 +115,42 @@ export default function CafeteriaCard() {
     if(fileInputRef.current) {
         fileInputRef.current.value = '';
     }
+    setView('initial');
   };
+
+  if (view === 'initial') {
+    return (
+      <Card className="flex flex-col h-full">
+        <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Campus Cafeteria</CardTitle>
+          <Utensils className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent className="flex-grow p-0">
+          {cafeteriaImage && (
+             <div className="relative w-full h-40">
+                <Image
+                    src={cafeteriaImage.imageUrl}
+                    alt={cafeteriaImage.description}
+                    layout="fill"
+                    objectFit="cover"
+                    data-ai-hint={cafeteriaImage.imageHint}
+                />
+             </div>
+          )}
+          <div className="p-6">
+            <h3 className="text-lg font-bold font-headline">Had Lunch Today?</h3>
+            <p className="text-sm text-muted-foreground">Your feedback helps improve the daily menu and service quality.</p>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full" onClick={() => setView('form')}>
+            <MessageSquareQuote className="mr-2" />
+            Leave a Review
+          </Button>
+        </CardFooter>
+      </Card>
+    )
+  }
 
   return (
     <Card className="flex flex-col">
@@ -191,7 +229,14 @@ export default function CafeteriaCard() {
           />
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex-col sm:flex-row gap-2">
+        <Button
+            onClick={() => setView('initial')}
+            variant="outline"
+            className="w-full sm:w-auto"
+        >
+            Cancel
+        </Button>
         <Button
           onClick={handleSubmit}
           className="w-full"

@@ -13,6 +13,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
 const CLOUDINARY_CLOUD_NAME = "dkyy0fpoz"; // <--- REPLACE THIS WITH YOUR CLOUDINARY CLOUD NAME
+const CLOUDINARY_API_KEY = "YOUR_API_KEY" // <--- REPLACE THIS WITH YOUR CLOUDINARY API KEY
 const CLOUDINARY_UPLOAD_PRESET = "care_campus"; // The preset you created in Cloudinary
 
 export default function CafeteriaCard() {
@@ -48,6 +49,7 @@ export default function CafeteriaCard() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('api_key', CLOUDINARY_API_KEY);
 
     try {
       const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {

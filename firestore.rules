@@ -20,5 +20,14 @@ service cloud.firestore {
       // Allow authenticated users (admins) to read the reports
       allow read: if request.auth != null;
     }
+
+    // Rules for Lost and Found Items
+    match /lost-and-found/{itemId} {
+      // Any authenticated user can create (report) a new item
+      allow create: if request.auth != null;
+      
+      // Any authenticated user can read the list of items
+      allow read: if request.auth != null;
+    }
   }
 }

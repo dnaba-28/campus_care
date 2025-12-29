@@ -5,6 +5,7 @@ import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'
 import { getDatabase } from 'firebase/database';
+import { getStorage } from 'firebase/storage';
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
@@ -17,13 +18,15 @@ export function getSdks(firebaseApp: FirebaseApp) {
     firebaseApp,
     auth: getAuth(firebaseApp),
     firestore: getFirestore(firebaseApp),
-    database: getDatabase(firebaseApp)
+    database: getDatabase(firebaseApp),
+    storage: getStorage(firebaseApp),
   };
 }
 
 // The existing setup already initializes firebase correctly, let's use it.
-const { database } = initializeFirebase();
+const { database, storage } = initializeFirebase();
 export const db = database;
+export const fbStorage = storage;
 
 
 export * from './provider';

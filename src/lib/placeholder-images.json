@@ -17,6 +17,12 @@
       "description": "An aerial view of a university campus.",
       "imageUrl": "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx1bml2ZXJzaXR5JTIwY2FtcHVzfGVufDB8fHx8MTc2NjkxNzgwNnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "university campus"
+    },
+    {
+      "id": "sos-alert",
+      "description": "A red alert light for emergencies.",
+      "imageUrl": "https://images.unsplash.com/photo-1580820216942-f7f6a73c153f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWQlMjBhbGVydCUyMGxpZ2h0fGVufDB8fHx8MTc2OTc1MzYyOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "emergency alert"
     }
   ]
 }

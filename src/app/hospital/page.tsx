@@ -2,6 +2,7 @@ import Navbar from '@/components/layout/navbar';
 import LiveStatusCard from '@/components/hospital/live-status-card';
 import BookAppointmentCard from '@/components/hospital/book-appointment-card';
 import FeedbackCard from '@/components/hospital/feedback-card';
+import AmbulanceTrackerCard from '@/components/hospital/ambulance-tracker-card';
 
 export default function HospitalPage() {
   return (
@@ -11,6 +12,9 @@ export default function HospitalPage() {
         <div className="mx-auto grid w-full max-w-7xl items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <LiveStatusCard />
+            <div className="mt-6">
+              <AmbulanceTrackerCard />
+            </div>
           </div>
           <div className="grid gap-6">
             <BookAppointmentCard />

@@ -11,11 +11,6 @@ const doctors = [
   { name: 'Dr. Patel', specialty: 'Ortho', status: 'Available' as const },
 ];
 
-const ambulanceStatus = {
-    status: 'Parked at Hospital' as const,
-    driver: 'Mr. Singh'
-}
-
 export default function LiveStatusCard() {
   return (
     <Card className="shadow-lg rounded-xl">
@@ -35,42 +30,24 @@ export default function LiveStatusCard() {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-lg font-semibold text-slate-700 mb-3">Doctor Availability</h3>
-              <div className="space-y-3">
-                {doctors.map((doctor) => (
-                  <div key={doctor.name} className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                    <div>
-                      <p className="font-semibold text-slate-800">{doctor.name}</p>
-                      <p className="text-sm text-slate-500">{doctor.specialty}</p>
-                    </div>
-                    <Badge variant={doctor.status === 'Available' ? 'default' : 'destructive'}
-                      className={doctor.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
-                    >
-                      {doctor.status}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col">
-                 <h3 className="text-lg font-semibold text-slate-700 mb-3">Ambulance Tracker</h3>
-                 <div className="p-4 bg-white rounded-lg border flex flex-col items-center justify-center text-center flex-grow">
-                    <Ambulance className="w-12 h-12 text-blue-500 mb-2"/>
-                    <p className="font-semibold text-slate-800">Ambulance Status</p>
-                    <Badge className={ambulanceStatus.status === 'Parked at Hospital' ? 'bg-green-100 text-green-800 my-2' : 'bg-red-100 text-red-800 my-2'}>
-                        {ambulanceStatus.status}
-                    </Badge>
-                     <Button className="mt-auto w-full" variant="outline">
-                        <Phone className="mr-2 h-4 w-4" />
-                        Call Driver
-                    </Button>
+        <div>
+          <h3 className="text-lg font-semibold text-slate-700 mb-3">Doctor Availability</h3>
+          <div className="space-y-3">
+            {doctors.map((doctor) => (
+              <div key={doctor.name} className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                <div>
+                  <p className="font-semibold text-slate-800">{doctor.name}</p>
+                  <p className="text-sm text-slate-500">{doctor.specialty}</p>
                 </div>
-            </div>
+                <Badge variant={doctor.status === 'Available' ? 'default' : 'destructive'}
+                  className={doctor.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
+                >
+                  {doctor.status}
+                </Badge>
+              </div>
+            ))}
+          </div>
         </div>
-
       </CardContent>
     </Card>
   );

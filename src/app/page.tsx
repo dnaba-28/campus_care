@@ -21,7 +21,7 @@ export default function Home() {
             src="https://storage.googleapis.com/project-magnolia-2f3b4.appspot.com/1/G3p22jQhKj4qR7K2.png"
             alt="NIT Agartala Campus"
             fill
-            style={{objectFit: "cover"}}
+            objectFit="cover"
             className="z-0"
           />
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-t from-gray-900 to-transparent text-center text-white">

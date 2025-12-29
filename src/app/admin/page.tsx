@@ -1,9 +1,8 @@
 'use client';
 import React, { useState } from 'react';
 import { Shield, Lock, AlertTriangle, MapPin, CheckCircle, Activity, Trash2, ShieldX } from 'lucide-react';
-import { useUser, useFirestore, useCollection } from '@/firebase';
+import { useUser, useFirestore, useCollection, initiateAnonymousSignIn, useAuth } from '@/firebase';
 import { collection, doc, deleteDoc, orderBy, query } from 'firebase/firestore';
-import { initiateAnonymousSignIn, useAuth } from '@/firebase/provider';
 
 export default function AdminPage() {
   const { user, isUserLoading } = useUser();

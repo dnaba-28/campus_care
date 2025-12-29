@@ -14,15 +14,21 @@ type UserProfile = {
 
 export default function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // This code runs only on the client-side
+    // This ensures the code runs only on the client-side after hydration
+    setIsClient(true);
     const savedData = localStorage.getItem('student_profile');
     if (savedData) {
-      const profile: UserProfile = JSON.parse(savedData);
-      // Simple check: if the user's name is "Admin", they are an admin.
-      if (profile.name === 'Admin') {
-        setIsAdmin(true);
+      try {
+        const profile: UserProfile = JSON.parse(savedData);
+        // Simple check: if the user's name is "Admin", they are an admin.
+        if (profile.name === 'Admin') {
+          setIsAdmin(true);
+        }
+      } catch (e) {
+        console.error("Failed to parse student_profile from localStorage", e);
       }
     }
   }, []);
@@ -33,12 +39,21 @@ export default function Navbar() {
   ];
 
   const adminLink = { href: '/admin', label: 'Admin' };
-
   const userLink = { href: '/profile', label: 'Profile' };
-  
-  const authLinks = [
-      { href: '/login', label: 'Login' }
-  ];
+  const authLinks = [{ href: '/login', label: 'Login' }];
+
+  // Only render links once we are on the client and have checked auth status
+  if (!isClient) {
+    // Render a placeholder or null during server-side rendering & initial hydration
+    return (
+        <header className="sticky top-0 flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6 z-50">
+             <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
+                <HeartPulse className="h-6 w-6 text-primary" />
+                <span className="font-headline text-xl font-bold hidden sm:inline-block">CARE-CAMPUS</span>
+            </Link>
+        </header>
+    )
+  }
 
   const navLinks = isAdmin 
     ? [...baseNavLinks, adminLink, userLink] 
@@ -47,7 +62,6 @@ export default function Navbar() {
   const allMobileLinks = isAdmin
     ? [...baseNavLinks, adminLink, userLink, ...authLinks]
     : [...baseNavLinks, userLink, ...authLinks];
-
 
   return (
     <header className="sticky top-0 flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6 z-50">

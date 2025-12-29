@@ -75,7 +75,11 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       return;
     }
 
-    initiateAnonymousSignIn(auth);
+    // This handles the initial anonymous sign-in for all users.
+    if (!auth.currentUser) {
+      initiateAnonymousSignIn(auth);
+    }
+    
 
     setUserAuthState({ user: null, isUserLoading: true, userError: null }); // Reset on auth instance change
 

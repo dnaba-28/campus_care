@@ -9,7 +9,7 @@ export default function AdminPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   
-  const alertsQuery = firestore ? query(collection(firestore, 'sos-reports'), orderBy('time', 'desc')) : null;
+  const alertsQuery = firestore ? query(collection(firestore, 'sos-reports'), orderBy('timestamp', 'desc')) : null;
   const { data: alerts, isLoading: alertsLoading } = useCollection(alertsQuery);
 
   const [password, setPassword] = useState('');
@@ -47,6 +47,8 @@ export default function AdminPage() {
 
   if (!isAuthenticated && !isUserLoading) {
     if (auth && !user) {
+        // Automatically trigger anon sign-in if not logged in at all.
+        // This is a failsafe if the main provider hasn't kicked in yet.
         initiateAnonymousSignIn(auth);
     }
     return (

@@ -35,7 +35,7 @@ export default function AmbulanceTrackerCard({ request, onAmbulanceArrived }: Am
     }
   }, [request]);
 
-  // Effect to simulate ETA and arrival
+  // Effect to simulate ETA and arrival. This now runs only on the client.
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === 'dispatched') {
@@ -46,7 +46,7 @@ export default function AmbulanceTrackerCard({ request, onAmbulanceArrived }: Am
     return () => clearTimeout(timer);
   }, [status]);
   
-  // Effect to handle progress bar animation
+  // Effect to handle progress bar animation. This also now runs only on the client.
   useEffect(() => {
     let progressTimer: NodeJS.Timeout | undefined;
     if (status === 'dispatched') {

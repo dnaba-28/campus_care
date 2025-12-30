@@ -37,7 +37,7 @@ export default function MessHubCard() {
   const [complaintType, setComplaintType] = useState('');
   const [complaintText, setComplaintText] = useState('');
 
-  // Effect for Crowd Meter Simulation
+  // Effect for Crowd Meter Simulation. This now runs only on the client.
   useEffect(() => {
     const interval = setInterval(() => {
       setOccupancy(prev => {

@@ -79,18 +79,16 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       setUserAuthState({ user: null, isUserLoading: false, userError: new Error("Auth service not provided.") });
       return;
     }
-
-    // This handles the initial anonymous sign-in for all users.
-    if (!auth.currentUser) {
-      initiateAnonymousSignIn(auth);
-    }
     
-
     setUserAuthState({ user: null, isUserLoading: true, userError: null }); // Reset on auth instance change
-
+    
     const unsubscribe = onAuthStateChanged(
       auth,
       (firebaseUser) => { // Auth state determined
+        if (!firebaseUser) {
+            // This handles the initial anonymous sign-in for all users on the client.
+            initiateAnonymousSignIn(auth);
+        }
         setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
       },
       (error) => { // Auth listener error

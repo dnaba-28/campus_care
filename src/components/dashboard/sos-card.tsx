@@ -20,8 +20,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Flame, Stethoscope, Shield, Car, CheckCircle, ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { db } from '@/firebase';
-import { ref, push } from 'firebase/database';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 
 type EmergencyType = 'FIRE' | 'HEALTH' | 'SAFETY' | 'ACCIDENT' | null;
@@ -49,6 +49,7 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         blockNo: '',
     });
     const { toast } = useToast();
+    const db = useFirestore();
     const sosImage = PlaceHolderImages.find(p => p.id === 'sos-map');
     
     useEffect(() => {
@@ -93,7 +94,7 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         );
     };
 
-    const saveAlert = (location: string) => {
+    const saveAlert = async (location: string) => {
         if (!db) {
             toast({
                 variant: "destructive",
@@ -111,18 +112,9 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
         };
         
         try {
-            push(ref(db, 'alerts/'), newAlert);
+            await addDoc(collection(db, 'alerts'), newAlert);
 
             setShowConfirmation(false);
-            // toast({
-            //     title: (
-            //         <div className="flex items-center gap-2">
-            //             <CheckCircle className="h-5 w-5 text-green-500" />
-            //             <span className="font-bold">SOS Sent to Security Cloud!</span>
-            //         </div>
-            //     ),
-            //     description: `Your ${selectedEmergency} alert has been received.`,
-            // });
             toast({
                 title: "SOS Alert Sent Successfully!",
                 description: "Help is on the way."

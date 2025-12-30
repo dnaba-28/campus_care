@@ -1,37 +1,19 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Shield, Lock, AlertTriangle, MapPin, CheckCircle, Activity, ShieldX } from 'lucide-react';
-import { db } from '@/firebase';
-import { ref, onValue, remove } from 'firebase/database';
+import { useCollection } from '@/firebase';
+import { collection, deleteDoc, doc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [alerts, setAlerts] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const db = useFirestore();
 
-  // Effect to listen for real-time Firebase updates
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    setIsLoading(true);
-    const alertsRef = ref(db, 'alerts/');
-    const unsubscribe = onValue(alertsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const list = Object.entries(data).map(([key, value]: any) => ({ id: key, ...value })).reverse();
-        setAlerts(list);
-      } else {
-        setAlerts([]);
-      }
-      setIsLoading(false);
-    });
-
-    // Cleanup subscription on component unmount
-    return () => unsubscribe();
-  }, [isAuthenticated]);
-
+  const alertsRef = db ? collection(db, 'alerts') : null;
+  const { data: alerts, isLoading } = useCollection(alertsRef);
+  
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === 'NITA2028') {
@@ -43,13 +25,16 @@ export default function AdminPage() {
   };
 
   const resolveAlert = (id: string) => {
-    const alertRef = ref(db, `alerts/${id}`);
-    remove(alertRef);
+    if (!db) return;
+    const alertRef = doc(db, 'alerts', id);
+    deleteDoc(alertRef);
   };
   
   const clearAllAlerts = () => {
-    const alertsRef = ref(db, 'alerts/');
-    remove(alertsRef);
+    if(!alerts) return;
+    alerts.forEach(alert => {
+        resolveAlert(alert.id);
+    })
   };
 
   if (!isAuthenticated) {
@@ -93,7 +78,7 @@ export default function AdminPage() {
         </div>
         <div className="flex gap-4 text-sm items-center">
           <span className="flex items-center gap-2 text-green-400"><Activity size={16}/> System Online</span>
-          <span className="flex items-center gap-2 text-red-400"><AlertTriangle size={16}/> Active Threats: {alerts.length}</span>
+          <span className="flex items-center gap-2 text-red-400"><AlertTriangle size={16}/> Active Threats: {alerts?.length || 0}</span>
           <button onClick={clearAllAlerts} className="flex items-center gap-2 text-gray-500 hover:text-red-400 transition-colors">
             <ShieldX size={16}/> Clear All
           </button>
@@ -107,7 +92,7 @@ export default function AdminPage() {
                 <Activity size={48} className="mx-auto mb-4 text-blue-500 animate-spin"/>
                 Connecting to Secure Feed...
               </div>
-          ) : alerts.length === 0 ? (
+          ) : !alerts || alerts.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <CheckCircle size={48} className="mx-auto mb-4 text-green-500"/>
                 No Active Emergencies. System is Clear.

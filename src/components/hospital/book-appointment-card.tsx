@@ -46,15 +46,11 @@ export default function BookAppointmentCard({ onAmbulanceRequest }: BookAppointm
 
     if (needsAmbulance) {
       onAmbulanceRequest({ destination: hostelName || 'hostel' });
+      // 
       toast({
-        title: (
-          <div className="flex items-center gap-2">
-            <Ambulance className="h-5 w-5 text-destructive" />
-            <span className="font-bold">Ambulance Dispatched!</span>
-          </div>
-        ),
-        description: `Your appointment token is #${newToken} and an ambulance is on its way to ${hostelName}.`,
-      });
+        title: "Ambulance Request Sent!",
+        description: "Emergency services have been notified."
+      })
     } else {
       toast({
         title: 'Appointment Confirmed!',

@@ -75,10 +75,20 @@ export default function Navbar() {
                     </SheetTrigger>
                     <SheetContent side="right">
                     <nav className="grid gap-6 text-lg font-medium">
-                        <Link href="#" className="flex items-center gap-2 text-lg font-semibold">
+                        <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
                         <HeartPulse className="h-6 w-6 text-primary" />
                         <span className="sr-only">CARE-CAMPUS</span>
                         </Link>
+                         {baseNavLinks.map((link) => (
+                            <Link
+                                key={link.label}
+                                href={link.href}
+                                className="text-muted-foreground hover:text-foreground"
+                            >
+                                {link.label}
+                            </Link>
+                         ))}
+                         <Link href={authLink.href} className="text-muted-foreground hover:text-foreground">{authLink.label}</Link>
                     </nav>
                     </SheetContent>
                 </Sheet>
@@ -136,7 +146,7 @@ export default function Navbar() {
             </SheetTrigger>
             <SheetContent side="right">
             <nav className="grid gap-6 text-lg font-medium">
-                <Link href="#" className="flex items-center gap-2 text-lg font-semibold">
+                <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
                 <HeartPulse className="h-6 w-6 text-primary" />
                 <span className="sr-only">CARE-CAMPUS</span>
                 </Link>

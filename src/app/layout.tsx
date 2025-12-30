@@ -2,11 +2,28 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase';
+import { PT_Sans, Poppins } from 'next/font/google';
+import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'CareCampus',
   description: 'Campus Safety Dashboard',
 };
+
+const fontPoppins = Poppins({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-poppins',
+  weight: ['400', '600', '700'],
+});
+
+const fontPTSans = PT_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-pt-sans',
+  weight: ['400', '700'],
+});
+
 
 export default function RootLayout({
   children,
@@ -15,12 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased">
+      <body className={cn("font-body antialiased", fontPoppins.variable, fontPTSans.variable)}>
         <FirebaseClientProvider>
           {children}
           <Toaster />

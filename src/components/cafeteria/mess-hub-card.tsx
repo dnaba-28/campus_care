@@ -78,7 +78,6 @@ export default function MessHubCard() {
       toast({ title: "Success", description: "Image uploaded!" });
   
     } catch (error: any) {
-      console.error(error);
       toast({ variant: "destructive", title: "Upload Failed", description: error.message || 'Please check your upload preset configuration in Cloudinary.' });
     } finally {
       setIsUploading(false);
@@ -102,7 +101,6 @@ export default function MessHubCard() {
       timestamp: new Date().toISOString(),
     };
 
-    console.log('Final Feedback Payload:', feedbackData);
     setIsSubmitted(true);
   };
   
@@ -131,7 +129,6 @@ export default function MessHubCard() {
       description: complaintText,
       timestamp: new Date().toISOString(),
     };
-    console.log('Complaint Lodged:', complaintData);
     toast({ title: "Complaint Lodged", description: "Your issue has been reported to the administration." });
     setComplaintType('');
     setComplaintText('');
@@ -168,8 +165,8 @@ export default function MessHubCard() {
                     src={imagePreview}
                     alt="Food preview"
                     fill
-                    objectFit="cover"
-                    className="rounded-md"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="rounded-md object-cover"
                 />
                 {isUploading && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-md">

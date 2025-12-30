@@ -154,8 +154,9 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
                             src={sosImage.imageUrl}
                             alt={sosImage.description}
                             fill
-                            objectFit="cover"
-                            className="transition-transform duration-300 group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            priority={true}
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint={sosImage.imageHint}
                             />
                         )}

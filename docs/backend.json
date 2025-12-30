@@ -46,6 +46,42 @@
         }
       },
       "required": ["userDetails", "emergencyType", "timestamp"]
+    },
+    "FeedbackLog": {
+      "title": "Feedback Log",
+      "description": "A log entry for user-submitted feedback for various campus services.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["CAFETERIA", "HOSPITAL"],
+          "description": "The service the feedback is for."
+        },
+        "rating": {
+          "type": "number",
+          "description": "The star rating provided by the user (1-5)."
+        },
+        "comment": {
+          "type": "string",
+          "description": "The user's textual feedback."
+        },
+        "photoUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional URL to an image uploaded by the user (e.g., for cafeteria food)."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The server timestamp when the feedback was submitted."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "RESOLVED"],
+          "description": "The current status of the feedback."
+        }
+      },
+      "required": ["type", "rating", "timestamp", "status"]
     }
   },
   "auth": {
@@ -63,6 +99,12 @@
         "$ref": "#/backend/entities/SosReport"
       },
       "description": "Stores all emergency SOS reports submitted by users."
+    },
+    "/feedback_logs/{logId}": {
+      "schema": {
+        "$ref": "#/backend/entities/FeedbackLog"
+      },
+      "description": "Collects all user-submitted feedback for services like the cafeteria and hospital."
     }
   }
 }

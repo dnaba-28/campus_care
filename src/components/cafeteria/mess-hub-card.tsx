@@ -13,6 +13,9 @@ import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { db } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+
 
 export default function MessHubCard() {
   // State for Rating Section
@@ -84,7 +87,7 @@ export default function MessHubCard() {
     }
   };
 
-  const handleReviewSubmit = () => {
+  const handleReviewSubmit = async () => {
     if (rating === 0) {
       toast({
         variant: 'destructive',
@@ -94,14 +97,26 @@ export default function MessHubCard() {
       return;
     }
 
-    const feedbackData = {
-      photoUrl: uploadedImageUrl,
-      rating,
-      reviewText,
-      timestamp: new Date().toISOString(),
-    };
+    try {
+        await addDoc(collection(db, 'feedback_logs'), {
+            type: 'CAFETERIA',
+            rating,
+            comment: reviewText,
+            photoUrl: uploadedImageUrl,
+            timestamp: serverTimestamp(),
+            status: 'PENDING',
+        });
+        
+        setIsSubmitted(true);
+    } catch (error) {
+        console.error("Error submitting review: ", error);
+        toast({
+            variant: "destructive",
+            title: "Submission Failed",
+            description: "Could not save your review. Please try again.",
+        });
+    }
 
-    setIsSubmitted(true);
   };
   
   const handleResetReview = () => {
@@ -232,11 +247,11 @@ export default function MessHubCard() {
                 onClick={handleReviewSubmit}
                 className="w-full text-lg"
                 size="lg"
-                disabled={isUploading || !uploadedImageUrl}
+                disabled={isUploading}
                 >
                 {isUploading ? (
                     <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading Image...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
                     </>
                 ) : (
                     'Submit Feedback'

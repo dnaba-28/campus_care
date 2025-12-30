@@ -7,13 +7,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { db } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function FeedbackCard() {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [comment, setComment] = useState('');
   const { toast } = useToast();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (rating === 0) {
       toast({
         variant: 'destructive',
@@ -22,11 +25,30 @@ export default function FeedbackCard() {
       });
       return;
     }
-    toast({
-      title: 'Feedback Submitted!',
-      description: 'Thank you for rating your visit.',
-    });
-    setRating(0);
+
+    try {
+      await addDoc(collection(db, 'feedback_logs'), {
+        type: 'HOSPITAL',
+        rating,
+        comment,
+        timestamp: serverTimestamp(),
+        status: 'PENDING',
+      });
+
+      toast({
+        title: 'Feedback Submitted!',
+        description: 'Thank you for rating your visit.',
+      });
+      setRating(0);
+      setComment('');
+    } catch (error) {
+      console.error('Error submitting feedback: ', error);
+      toast({
+        variant: 'destructive',
+        title: 'Submission Failed',
+        description: 'Could not submit your feedback. Please try again.',
+      });
+    }
   };
 
   return (
@@ -52,7 +74,11 @@ export default function FeedbackCard() {
             />
           ))}
         </div>
-        <Textarea placeholder="Describe your experience (hygiene, doctor behavior)..." />
+        <Textarea 
+          placeholder="Describe your experience (hygiene, doctor behavior)..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
         <Button onClick={handleSubmit} className="w-full" style={{ backgroundColor: '#007bff' }}>
           Submit Feedback
         </Button>

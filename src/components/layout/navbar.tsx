@@ -42,7 +42,10 @@ export default function Navbar() {
     { href: '/', label: 'Home' },
     { href: '/chat', label: 'AI Chat' },
   ];
-  const adminLink = { href: '/admin', label: 'Admin' };
+  const adminLinks = [
+      { href: '/admin', label: 'Security' },
+      { href: '/admin/reviews', label: 'Reviews' }
+  ];
   const userLink = { href: '/profile', label: 'Profile' };
   const authLink = { href: '/login', label: 'Login' };
 
@@ -87,13 +90,13 @@ export default function Navbar() {
   // Now that we are on the client, we can safely determine the correct links to show.
   let navLinks = [...baseNavLinks];
   if(hasProfile) {
-      if(isAdmin) navLinks.push(adminLink);
+      if(isAdmin) navLinks.push(...adminLinks);
       navLinks.push(userLink);
   }
     
   let allMobileLinks = [...baseNavLinks];
   if(hasProfile) {
-    if(isAdmin) allMobileLinks.push(adminLink);
+    if(isAdmin) allMobileLinks.push(...adminLinks);
     allMobileLinks.push(userLink);
   } else {
     allMobileLinks.push(authLink);

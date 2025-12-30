@@ -114,15 +114,19 @@ export default function SosCard({ isModalOpen, onOpenChange }: SosCardProps) {
             push(ref(db, 'alerts/'), newAlert);
 
             setShowConfirmation(false);
+            // toast({
+            //     title: (
+            //         <div className="flex items-center gap-2">
+            //             <CheckCircle className="h-5 w-5 text-green-500" />
+            //             <span className="font-bold">SOS Sent to Security Cloud!</span>
+            //         </div>
+            //     ),
+            //     description: `Your ${selectedEmergency} alert has been received.`,
+            // });
             toast({
-                title: (
-                    <div className="flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                        <span className="font-bold">SOS Sent to Security Cloud!</span>
-                    </div>
-                ),
-                description: `Your ${selectedEmergency} alert has been received.`,
-            });
+                title: "SOS Alert Sent Successfully!",
+                description: "Help is on the way."
+              })
 
             setTimeout(() => {
                 onOpenChange?.(false);

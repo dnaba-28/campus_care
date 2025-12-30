@@ -13,7 +13,7 @@ import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { db } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 
@@ -28,6 +28,7 @@ export default function MessHubCard() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const db = useFirestore();
 
   // State for Crowd Meter
   const [occupancy, setOccupancy] = useState(65);
@@ -95,6 +96,14 @@ export default function MessHubCard() {
         description: 'Please select a star rating before submitting.',
       });
       return;
+    }
+    if (!db) {
+        toast({
+            variant: "destructive",
+            title: "Database Error",
+            description: "Could not connect to the database.",
+        });
+        return;
     }
 
     try {
@@ -247,7 +256,7 @@ export default function MessHubCard() {
                 onClick={handleReviewSubmit}
                 className="w-full text-lg"
                 size="lg"
-                disabled={isUploading}
+                disabled={isUploading || !db}
                 >
                 {isUploading ? (
                     <>

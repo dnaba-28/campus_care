@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { db } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -23,8 +23,14 @@ type FeedbackLog = {
 export default function AdminReviewsPage() {
   const [feedback, setFeedback] = useState<FeedbackLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const db = useFirestore(); // Correctly get Firestore instance via hook
 
   useEffect(() => {
+    if (!db) {
+        setIsLoading(false);
+        return;
+    }; // Wait for Firestore to be initialized
+
     const feedbackRef = collection(db, 'feedback_logs');
     const q = query(feedbackRef, orderBy('timestamp', 'desc'));
 
@@ -32,10 +38,13 @@ export default function AdminReviewsPage() {
       const logs = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as FeedbackLog));
       setFeedback(logs);
       setIsLoading(false);
+    }, (error) => {
+        console.error("Error fetching feedback: ", error);
+        setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [db]); // Re-run effect if db instance changes
 
   const handleResolve = async (id: string) => {
     const docRef = doc(db, 'feedback_logs', id);
@@ -129,7 +138,7 @@ export default function AdminReviewsPage() {
                                 </TableRow>
                             ) : (
                                 feedback.map(log => (
-                                    <TableRow key={log.id} className={cn(log.status === 'RESOLVED' && 'bg-green-50')}>
+                                    <TableRow key={log.id} className={cn(log.status === 'RESOLVED' && 'bg-green-50/50')}>
                                         <TableCell>{log.timestamp ? format(log.timestamp.toDate(), 'dd MMM, HH:mm') : 'N/A'}</TableCell>
                                         <TableCell>
                                             <Badge variant={log.type === 'CAFETERIA' ? 'default' : 'secondary'} className="flex items-center gap-1 w-fit">
@@ -140,7 +149,7 @@ export default function AdminReviewsPage() {
                                         <TableCell>{renderStars(log.rating)}</TableCell>
                                         <TableCell className="max-w-xs truncate">{log.comment || 'No comment'}</TableCell>
                                         <TableCell>
-                                            <Badge variant={log.status === 'PENDING' ? 'destructive' : 'default'}>
+                                            <Badge variant={log.status === 'PENDING' ? 'destructive' : 'default'} className={cn(log.status === 'RESOLVED' && 'bg-green-600 hover:bg-green-700')}>
                                                 {log.status}
                                             </Badge>
                                         </TableCell>

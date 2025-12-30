@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function FeedbackCard() {
@@ -15,6 +15,7 @@ export default function FeedbackCard() {
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const { toast } = useToast();
+  const db = useFirestore();
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -24,6 +25,14 @@ export default function FeedbackCard() {
         description: 'Please select a star rating before submitting.',
       });
       return;
+    }
+    if (!db) {
+        toast({
+            variant: "destructive",
+            title: "Database Error",
+            description: "Could not connect to the database.",
+        });
+        return;
     }
 
     try {
@@ -79,7 +88,7 @@ export default function FeedbackCard() {
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />
-        <Button onClick={handleSubmit} className="w-full" style={{ backgroundColor: '#007bff' }}>
+        <Button onClick={handleSubmit} className="w-full" style={{ backgroundColor: '#007bff' }} disabled={!db}>
           Submit Feedback
         </Button>
       </CardContent>

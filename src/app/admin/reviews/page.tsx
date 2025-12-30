@@ -39,7 +39,6 @@ export default function AdminReviewsPage() {
       setFeedback(logs);
       setIsLoading(false);
     }, (error) => {
-        console.error("Error fetching feedback: ", error);
         setIsLoading(false);
     });
 
@@ -47,11 +46,13 @@ export default function AdminReviewsPage() {
   }, [db]); // Re-run effect if db instance changes
 
   const handleResolve = async (id: string) => {
+    if (!db) return;
     const docRef = doc(db, 'feedback_logs', id);
     await updateDoc(docRef, { status: 'RESOLVED' });
   };
 
   const handleDelete = async (id: string) => {
+    if (!db) return;
     if (window.confirm('Are you sure you want to delete this feedback?')) {
       const docRef = doc(db, 'feedback_logs', id);
       await deleteDoc(docRef);

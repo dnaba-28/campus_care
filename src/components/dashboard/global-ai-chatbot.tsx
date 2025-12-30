@@ -33,7 +33,7 @@ export default function GlobalAIChatbot() {
                 </p>
             </div>
             <Button asChild className="w-full bg-white text-slate-800 hover:bg-slate-200">
-                <Link href="/chat">
+                <Link href="/chat" prefetch={true}>
                     Start a Conversation <ArrowRight className="ml-2" />
                 </Link>
             </Button>

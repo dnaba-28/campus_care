@@ -33,7 +33,7 @@ export default function HospitalCard() {
             </p>
         </div>
         <Button asChild className="w-full bg-white text-slate-800 hover:bg-slate-200">
-            <Link href="/hospital">
+            <Link href="/hospital" prefetch={true}>
                 View Live Status <ArrowRight className="ml-2" />
             </Link>
         </Button>

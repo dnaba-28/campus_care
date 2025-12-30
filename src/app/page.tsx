@@ -1,23 +1,12 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import Navbar from '@/components/layout/navbar';
 import SosCard from '@/components/dashboard/sos-card';
 import Image from 'next/image';
-import { Loader2 } from 'lucide-react';
-import React from 'react';
-
-// Dynamically import non-critical components
-const HospitalCard = React.lazy(() => import('@/components/dashboard/hospital-card'));
-const CafeteriaCard = React.lazy(() => import('@/components/dashboard/cafeteria-card'));
-const GlobalAIChatbot = React.lazy(() => import('@/components/dashboard/global-ai-chatbot'));
-
-const LoadingSpinner = () => (
-    <div className="flex items-center justify-center h-full min-h-[200px] bg-slate-100 rounded-2xl">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-    </div>
-);
-
+import HospitalCard from '@/components/dashboard/hospital-card';
+import CafeteriaCard from '@/components/dashboard/cafeteria-card';
+import GlobalAIChatbot from '@/components/dashboard/global-ai-chatbot';
 
 export default function Home() {
   const [isSosModalOpen, setIsSosModalOpen] = useState(false);
@@ -48,15 +37,9 @@ export default function Home() {
           <div className="mx-auto w-full max-w-6xl px-4">
              <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
               <SosCard isModalOpen={isSosModalOpen} onOpenChange={setIsSosModalOpen} />
-              <Suspense fallback={<LoadingSpinner />}>
-                  <HospitalCard />
-              </Suspense>
-              <Suspense fallback={<LoadingSpinner />}>
-                  <CafeteriaCard />
-              </Suspense>
-               <Suspense fallback={<LoadingSpinner />}>
-                  <GlobalAIChatbot />
-              </Suspense>
+              <HospitalCard />
+              <CafeteriaCard />
+              <GlobalAIChatbot />
             </div>
           </div>
         </div>

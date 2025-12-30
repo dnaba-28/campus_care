@@ -33,7 +33,7 @@ export default function CafeteriaCard() {
           </p>
         </div>
         <Button asChild className="w-full bg-white text-slate-800 hover:bg-slate-200">
-            <Link href="/cafeteria">
+            <Link href="/cafeteria" prefetch={true}>
               Leave a Review <ArrowRight className="ml-2" />
             </Link>
         </Button>

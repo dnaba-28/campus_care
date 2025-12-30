@@ -1,36 +1,45 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/navbar';
 import LiveStatusCard from '@/components/hospital/live-status-card';
 import BookAppointmentCard from '@/components/hospital/book-appointment-card';
 import FeedbackCard from '@/components/hospital/feedback-card';
 import AmbulanceTrackerCard from '@/components/hospital/ambulance-tracker-card';
+import AdminLoading from '../admin/loading';
 
 export type AmbulanceRequest = {
   destination: string;
 };
 
-function HospitalPageComponent() {
+export default function HospitalPage() {
   const [ambulanceRequest, setAmbulanceRequest] = useState<AmbulanceRequest | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
-    // This code now runs only on the client, after hydration.
-    // It prevents a mismatch between server and client renders.
-    const mode = searchParams.get('mode');
-    if (mode === 'ambulance') {
-      setAmbulanceRequest({ destination: 'Emergency Location' });
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      const mode = searchParams.get('mode');
+      if (mode === 'ambulance') {
+        setAmbulanceRequest({ destination: 'Emergency Location' });
+      }
     }
-  }, [searchParams]);
+  }, [isMounted, searchParams]);
 
   const handleAmbulanceArrived = () => {
     setAmbulanceRequest(null);
-    // clean up the URL
     router.replace('/hospital');
   };
+
+  if (!isMounted) {
+    return <AdminLoading />; // Or a custom loading component for the hospital
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-slate-50">
@@ -54,14 +63,4 @@ function HospitalPageComponent() {
       </main>
     </div>
   );
-}
-
-// Wrap the page component in a Suspense boundary, as recommended by Next.js
-// for pages that use `useSearchParams`.
-export default function HospitalPage() {
-    return (
-        <Suspense>
-            <HospitalPageComponent />
-        </Suspense>
-    )
 }

@@ -14,11 +14,10 @@ type UserProfile = {
 export default function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // This effect runs only on the client, after the component has mounted.
-    setIsClient(true); // Mark that we are now on the client.
+    setIsMounted(true);
     const savedData = localStorage.getItem('student_profile');
     if (savedData) {
       setHasProfile(true);
@@ -35,9 +34,8 @@ export default function Navbar() {
       setHasProfile(false);
       setIsAdmin(false);
     }
-  }, []); // Empty dependency array ensures this runs only once.
+  }, []);
 
-  // Define link arrays
   const baseNavLinks = [
     { href: '/', label: 'Home' },
     { href: '/chat', label: 'AI Chat' },
@@ -49,55 +47,22 @@ export default function Navbar() {
   const userLink = { href: '/profile', label: 'Profile' };
   const authLink = { href: '/login', label: 'Login' };
 
-  // Don't render the dynamic links until we're on the client and know the user's status.
-  // This prevents the flicker/incorrect state during server-side rendering and hydration.
-  if (!isClient) {
+  if (!isMounted) {
+    // Render a skeleton or a consistent server-side version of the navbar
     return (
         <header className="sticky top-0 flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6 z-50">
              <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
                 <HeartPulse className="h-6 w-6 text-primary" />
                 <span className="font-headline text-xl font-bold hidden sm:inline-block">CARE-CAMPUS</span>
             </Link>
-            {/* Render a simplified header or loading state on the server and during hydration */}
-             <div className="hidden md:flex items-center gap-4">
-                <Button asChild variant="outline">
-                    <Link href="/login">Login</Link>
-                </Button>
-            </div>
              <div className="flex items-center gap-4 md:hidden">
                 <span className="font-headline text-xl font-bold">CARE-CAMPUS</span>
-                <Sheet>
-                    <SheetTrigger asChild>
-                    <Button variant="outline" size="icon" className="shrink-0">
-                        <Menu className="h-5 w-5" />
-                        <span className="sr-only">Toggle navigation menu</span>
-                    </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right">
-                    <nav className="grid gap-6 text-lg font-medium">
-                        <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                        <HeartPulse className="h-6 w-6 text-primary" />
-                        <span className="sr-only">CARE-CAMPUS</span>
-                        </Link>
-                         {baseNavLinks.map((link) => (
-                            <Link
-                                key={link.label}
-                                href={link.href}
-                                className="text-muted-foreground hover:text-foreground"
-                            >
-                                {link.label}
-                            </Link>
-                         ))}
-                         <Link href={authLink.href} className="text-muted-foreground hover:text-foreground">{authLink.label}</Link>
-                    </nav>
-                    </SheetContent>
-                </Sheet>
             </div>
         </header>
     );
   }
 
-  // Now that we are on the client, we can safely determine the correct links to show.
+  // Client-side rendered navbar
   let navLinks = [...baseNavLinks];
   if(hasProfile) {
       if(isAdmin) navLinks.push(...adminLinks);

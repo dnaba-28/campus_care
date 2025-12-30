@@ -4,11 +4,23 @@ import { usePathname, useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
 
 export default function GlobalExitButton() {
   const pathname = usePathname();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Don't render on the server or during initial client hydration
+  if (!isMounted) {
+    return null;
+  }
+
+  // Once mounted, check the pathname to decide if the button should be visible
   if (pathname === '/') {
     return null;
   }

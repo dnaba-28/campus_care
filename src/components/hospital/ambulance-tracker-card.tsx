@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Phone, Ambulance, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AmbulanceRequest } from '@/app/hospital/page';
+import { useRouter } from 'next/navigation';
 
 type Status = 'idle' | 'dispatched' | 'arrived';
 
@@ -25,6 +26,7 @@ type AmbulanceTrackerCardProps = {
 export default function AmbulanceTrackerCard({ request, onAmbulanceArrived }: AmbulanceTrackerCardProps) {
   const [status, setStatus] = useState<Status>('idle');
   const [progress, setProgress] = useState(0);
+  const router = useRouter();
 
   // Effect to handle incoming requests
   useEffect(() => {
@@ -32,6 +34,7 @@ export default function AmbulanceTrackerCard({ request, onAmbulanceArrived }: Am
       setStatus('dispatched');
     } else {
       setStatus('idle');
+      setProgress(0);
     }
   }, [request]);
 
@@ -74,7 +77,6 @@ export default function AmbulanceTrackerCard({ request, onAmbulanceArrived }: Am
 
 
   const handleReset = () => {
-    setStatus('idle');
     onAmbulanceArrived();
   };
 

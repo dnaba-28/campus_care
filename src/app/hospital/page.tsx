@@ -1,27 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/navbar';
 import LiveStatusCard from '@/components/hospital/live-status-card';
 import BookAppointmentCard from '@/components/hospital/book-appointment-card';
 import FeedbackCard from '@/components/hospital/feedback-card';
 import AmbulanceTrackerCard from '@/components/hospital/ambulance-tracker-card';
-import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export type AmbulanceRequest = {
   destination: string;
 };
 
-export default function HospitalPage() {
+function HospitalPageComponent() {
   const [ambulanceRequest, setAmbulanceRequest] = useState<AmbulanceRequest | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
-    // Check for the ambulance mode from the URL query on initial load
+    // This code now runs only on the client, after hydration.
+    // It prevents a mismatch between server and client renders.
     const mode = searchParams.get('mode');
     if (mode === 'ambulance') {
       setAmbulanceRequest({ destination: 'Emergency Location' });
@@ -30,6 +28,8 @@ export default function HospitalPage() {
 
   const handleAmbulanceArrived = () => {
     setAmbulanceRequest(null);
+    // clean up the URL
+    router.replace('/hospital');
   };
 
   return (
@@ -54,4 +54,14 @@ export default function HospitalPage() {
       </main>
     </div>
   );
+}
+
+// Wrap the page component in a Suspense boundary, as recommended by Next.js
+// for pages that use `useSearchParams`.
+export default function HospitalPage() {
+    return (
+        <Suspense>
+            <HospitalPageComponent />
+        </Suspense>
+    )
 }

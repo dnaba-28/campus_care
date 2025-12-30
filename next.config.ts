@@ -5,12 +5,14 @@ const nextConfig: NextConfig = {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
     // your project has type errors.
-    ignoreBuildErrors: true,
+    // This was disabled for production readiness.
+    // ignoreBuildErrors: true,
   },
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
-    ignoreDuringBuilds: true,
+    // This was disabled for production readiness.
+    // ignoreDuringBuilds: true,
   },
   images: {
     remotePatterns: [
@@ -25,6 +27,10 @@ const nextConfig: NextConfig = {
       {
          protocol: 'https',
          hostname: 'plus.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
       }
     ],
   },
